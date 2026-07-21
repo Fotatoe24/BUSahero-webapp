@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BUSAhero — Fare Metrics & Fare CRUD (Next.js mockup)
 
-## Getting Started
+A working Next.js/React mockup that pairs with your existing Firebase
+Realtime Database bus-tracking setup. It adds:
 
-First, run the development server:
+- **Dashboard** — live bus positions/status pulled from `/buses/{region}/{busId}`
+  (the same structure as your `bustrackingsystem-24baf` export), plus a fare
+  metrics panel (active buses, routes priced, avg. fare, estimated revenue).
+- **Fares page** — full CRUD (create, read, update, delete) for a `/fares`
+  node: route name, regular fare, discounted (student/senior) fare.
+
+## Running it
 
 ```bash
+npm install
+cp .env.local.example .env.local   # then fill in your Firebase web config
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**If you don't fill in `.env.local`**, the app still runs — it falls back to
+a simulated bus feed and in-memory fare list (seeded with 3 sample routes) so
+you can click through the whole flow without any backend. Once you add your
+real Firebase config, it automatically switches to live data (you'll see the
+top-right pill change from "DEMO DATA" to "LIVE · FIREBASE").
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where to get the Firebase values
 
-## Learn More
+Firebase console → Project settings → General → "Your apps" → the web app's
+SDK config object. `NEXT_PUBLIC_FIREBASE_DATABASE_URL` should be your RTDB
+URL, e.g. `https://bustrackingsystem-24baf-default-rtdb.firebaseio.com`.
 
-To learn more about Next.js, take a look at the following resources:
+## Data model
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+buses/
+  north/
+    bus1/ { latitude, longitude, satellites, speed, status, updatedAt }
+  south/
+    bus2/ { latitude, longitude, satellites, speed, status, updatedAt }
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+fares/
+  <auto-id>/ { route, regular, discounted, updatedAt }
+```
 
-## Deploy on Vercel
+The dashboard only *reads* `/buses` (your GPS device/app should keep writing
+to it as before). The Fares page reads and writes `/fares`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Suggested Firebase Realtime Database rules (starting point)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Buses stay read-only from the client, fares are only editable by
+authenticated operators. Tighten as needed once you add Firebase Auth:
+
+```json
+{
+  "rules": {
+    "buses": {
+      ".read": true,
+      ".write": false
+    },
+    "fares": {
+      ".read": true,
+      ".write": "auth != null"
+    }
+  }
+}
+```
+
+## Notes on the "fare metrics" numbers
+
+There's no ticketing/passenger-count data in your current Firebase schema,
+so **estimated daily revenue** on the dashboard is a projection
+(`active buses × assumed trips/day × assumed riders/trip × avg. regular
+fare`) clearly labeled as an estimate — swap in real trip/ticket counts from
+your ticketing system when you have them (see `ASSUMED_TRIPS_PER_BUS_PER_DAY`
+and `ASSUMED_PASSENGERS_PER_TRIP` in `app/page.js`).
+
+## Structure
+
+```
+app/
+  layout.js        Root layout (fonts, shell)
+  page.js          Dashboard: live buses + fare metrics
+  fares/page.js    Fare CRUD page
+components/
+  Sidebar.js, Topbar.js, StatCard.js, Toast.js
+  BusStatusList.js Realtime bus list
+  FareTable.js, FareModal.js
+lib/
+  firebase.js          Firebase app/db init
+  useRealtimeBuses.js  Hook: subscribes to /buses (or simulates if no config)
+  useFares.js          Hook: CRUD on /fares (or local state if no config)
+```
