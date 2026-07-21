@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const NAV_ITEMS = [
+interface NavItem {
+  href: string;
+  label: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dashboard" },
   { href: "/fares", label: "Fares" },
 ];
@@ -15,13 +20,16 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="brand">
         <div className="brand-mark">🚌</div>
+
         <div>
           <div className="brand-name">BUSAhero</div>
+
           <div className="brand-sub">Operator Console</div>
         </div>
       </div>
 
       <div className="nav-group-label">Main</div>
+
       <nav className="nav">
         {NAV_ITEMS.map((item) => (
           <Link
@@ -37,8 +45,10 @@ export default function Sidebar() {
       <div className="sidebar-foot">
         <div className="op-card">
           <div className="op-avatar">R</div>
+
           <div>
             <div className="op-name">Rosa Santos</div>
+
             <div className="op-role">Fleet Operator</div>
           </div>
         </div>
