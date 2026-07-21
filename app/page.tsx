@@ -47,8 +47,23 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Mock Realtime Map */}
-          <RealtimeMap buses={buses} />
+          <div className="content">
+            <div className="stat-grid">...</div>
+
+            <RealtimeMap buses={buses} />
+
+            <div className="card">
+              <div className="card-head">
+                <div>
+                  <div className="section-title">Bus Status</div>
+
+                  <div className="section-sub">Live GPS monitoring</div>
+                </div>
+              </div>
+
+              <BusStatusList buses={buses} loading={loading} />
+            </div>
+          </div>
 
           {/* Bus List */}
           <div className="card">
