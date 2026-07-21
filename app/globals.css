@@ -273,8 +273,15 @@ button {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .content {
@@ -356,8 +363,13 @@ button {
   margin-top: 5px;
 }
 
-.stat-foot.up { color: var(--route-green); }
-.stat-foot.warn { color: var(--route-amber); }
+.stat-foot.up {
+  color: var(--route-green);
+}
+
+.stat-foot.warn {
+  color: var(--route-amber);
+}
 
 /* ---------- Tables ---------- */
 table {
@@ -407,10 +419,25 @@ tbody tr:last-child td {
   font-weight: 600;
 }
 
-.badge-green { background: var(--route-green-bg); color: var(--route-green); }
-.badge-amber { background: var(--route-amber-bg); color: var(--route-amber); }
-.badge-red { background: var(--route-red-bg); color: var(--route-red); }
-.badge-slate { background: var(--route-slate-bg); color: var(--route-slate); }
+.badge-green {
+  background: var(--route-green-bg);
+  color: var(--route-green);
+}
+
+.badge-amber {
+  background: var(--route-amber-bg);
+  color: var(--route-amber);
+}
+
+.badge-red {
+  background: var(--route-red-bg);
+  color: var(--route-red);
+}
+
+.badge-slate {
+  background: var(--route-slate-bg);
+  color: var(--route-slate);
+}
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -429,7 +456,9 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-.btn-primary:hover { background: var(--blue-500); }
+.btn-primary:hover {
+  background: var(--blue-500);
+}
 
 .btn-ghost {
   background: transparent;
@@ -437,7 +466,9 @@ tbody tr:last-child td {
   border-color: var(--line);
 }
 
-.btn-ghost:hover { background: var(--paper); }
+.btn-ghost:hover {
+  background: var(--paper);
+}
 
 .btn-danger-outline {
   background: transparent;
@@ -445,7 +476,9 @@ tbody tr:last-child td {
   border-color: var(--route-red-bg);
 }
 
-.btn-danger-outline:hover { background: var(--route-red-bg); }
+.btn-danger-outline:hover {
+  background: var(--route-red-bg);
+}
 
 .row-btn {
   background: transparent;
@@ -593,7 +626,9 @@ tbody tr:last-child td {
   border-bottom: 1px solid var(--line);
 }
 
-.bus-item:last-child { border-bottom: none; }
+.bus-item:last-child {
+  border-bottom: none;
+}
 
 .bus-id {
   font-family: var(--font-display);
@@ -621,12 +656,199 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 980px) {
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .dash-grid { grid-template-columns: 1fr; }
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {
-  .shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
-  .stat-grid { grid-template-columns: 1fr; }
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ---------- Realtime Map ---------- */
+
+.map-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+
+.mock-map {
+  height: 420px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(135deg,
+      #e8ebf3,
+      #f8f9fc);
+
+  border: 1px solid var(--line);
+}
+
+
+/* fake roads */
+
+.road {
+  position: absolute;
+  background: white;
+  opacity: 0.8;
+  border-radius: 20px;
+}
+
+
+.road-1 {
+  width: 600px;
+  height: 22px;
+  top: 35%;
+  left: -100px;
+  transform: rotate(18deg);
+}
+
+
+.road-2 {
+  width: 500px;
+  height: 22px;
+  top: 65%;
+  right: -80px;
+  transform: rotate(-20deg);
+}
+
+
+.road-3 {
+  width: 400px;
+  height: 18px;
+  top: 50%;
+  left: 25%;
+  transform: rotate(90deg);
+}
+
+
+
+/* bus marker */
+
+.bus-marker {
+  position: absolute;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  transform: translate(-50%, -50%);
+
+  font-size: 28px;
+
+  cursor: pointer;
+
+  transition: transform .2s ease;
+}
+
+
+.bus-marker:hover {
+  transform:
+    translate(-50%, -50%) scale(1.15);
+}
+
+
+.bus-marker span {
+
+  margin-top: 5px;
+
+  background: white;
+
+  padding: 4px 8px;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+
+  font-family: var(--font-mono);
+
+  font-weight: 700;
+
+  color: var(--ink-700);
+
+  box-shadow: var(--shadow-sm);
+
+}
+
+
+
+/* map controls */
+
+.map-controls {
+
+  position: absolute;
+
+  right: 18px;
+  bottom: 18px;
+
+
+  background: white;
+
+  border-radius: 10px;
+
+  box-shadow: var(--shadow-sm);
+
+  overflow: hidden;
+
+}
+
+
+.map-controls button {
+
+  width: 40px;
+  height: 40px;
+
+  border: none;
+
+  background: white;
+
+  font-size: 20px;
+
+}
+
+
+.map-controls button:hover {
+
+  background: var(--paper);
+
+}
+
+.bus-marker.moving {
+  filter: drop-shadow(0 0 8px var(--route-green));
+}
+
+
+.bus-marker.stopped {
+  opacity: .6;
 }

@@ -26,19 +26,29 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
         <div className="road road-1" />
         <div className="road road-2" />
 
-        {buses.map((bus, index) => (
-          <div
-            key={bus.id}
-            className="bus-marker"
-            style={{
-              left: `${20 + index * 25}%`,
-              top: `${30 + index * 15}%`,
-            }}
-          >
-            🚌
-            <span>{bus.id.toUpperCase()}</span>
-          </div>
-        ))}
+        {buses.map((bus) => {
+          // Convert GPS coordinates into fake map positions
+          // Philippines/Zambales area approximation
+          const left = ((bus.longitude - 119.8) / 0.5) * 100;
+
+          const top = 100 - ((bus.latitude - 14.8) / 0.7) * 100;
+
+          return (
+            <div
+              key={bus.id}
+              className={`bus-marker ${
+                bus.status === "In Transit" ? "moving" : "stopped"
+              }`}
+              style={{
+                left: `${Math.min(Math.max(left, 5), 95)}%`,
+                top: `${Math.min(Math.max(top, 5), 95)}%`,
+              }}
+            >
+              🚌
+              <span>{bus.id.toUpperCase()}</span>
+            </div>
+          );
+        })}
 
         <div className="map-controls">
           +
