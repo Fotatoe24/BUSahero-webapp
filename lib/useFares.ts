@@ -1,26 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  ref,
-  onValue,
-  push,
-  set,
-  update,
-  remove,
-} from "firebase/database";
+import { Fare } from "@/types/fare";
+import { ref, onValue, push, set, update, remove } from "firebase/database";
 
-import { db } from "./firebase";
-
-
-interface Fare {
-  id: string;
-  route: string;
-  regular: number;
-  discounted: number;
-  updatedAt: number;
-}
-
+import { db, hasFirebaseConfig } from "./firebase";
 
 interface FareInput {
   route: string;
@@ -28,15 +12,7 @@ interface FareInput {
   discounted: string | number;
 }
 
-
-type FareSource = "firebase" | "local";
-
-
-
-const hasFirebaseConfig =
-  Boolean(process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL);
-
-
+type FareSource = "firebase" | "mock";
 
 const SEED_FARES: Record<string, Omit<Fare, "id">> = {
   "fare-1": {
@@ -61,104 +37,59 @@ const SEED_FARES: Record<string, Omit<Fare, "id">> = {
   },
 };
 
-
-
 function toArray(
   faresObj: Record<string, Omit<Fare, "id">> | null | undefined
 ): Fare[] {
-
   return Object.entries(faresObj ?? {})
     .map(([id, fare]) => ({
       id,
       ...fare,
     }))
-    .sort(
-      (a, b) =>
-        (b.updatedAt ?? 0) -
-        (a.updatedAt ?? 0)
-    );
+    .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
 }
 
-
-
-
-
 export function useFares() {
-
   const [fares, setFares] = useState<Fare[]>(
-    hasFirebaseConfig
-      ? []
-      : toArray(SEED_FARES)
+    hasFirebaseConfig ? [] : toArray(SEED_FARES)
   );
 
+  const [loading, setLoading] = useState<boolean>(hasFirebaseConfig);
 
-  const [loading, setLoading] =
-    useState<boolean>(hasFirebaseConfig);
-
-
-  const [localFares, setLocalFares] =
-    useState(SEED_FARES);
-
-
-
+  const [localFares, setLocalFares] = useState(SEED_FARES);
 
   useEffect(() => {
-
     if (!hasFirebaseConfig) return;
 
+    if (!db) return;
 
     const faresRef = ref(db, "fares");
-
 
     const unsubscribe = onValue(
       faresRef,
 
       (snapshot) => {
-
-        setFares(
-          toArray(snapshot.val())
-        );
+        setFares(toArray(snapshot.val()));
 
         setLoading(false);
       },
 
-
       (error) => {
-
         console.error(
           "Firebase fares read failed, falling back to local state:",
           error
         );
 
-
-        setFares(
-          toArray(SEED_FARES)
-        );
-
+        setFares(toArray(SEED_FARES));
 
         setLoading(false);
       }
     );
 
-
     return () => unsubscribe();
-
   }, []);
 
-
-
-
-
-
-
   const addFare = useCallback(
-    async ({
-      route,
-      regular,
-      discounted,
-    }: FareInput) => {
-
-
+    async ({ route, regular, discounted }: FareInput) => {
       const payload = {
         route,
         regular: Number(regular),
@@ -166,67 +97,29 @@ export function useFares() {
         updatedAt: Date.now(),
       };
 
-
-
-      if (hasFirebaseConfig) {
-
-        const newRef = push(
-          ref(db, "fares")
-        );
-
-
-        await set(
-          newRef,
-          payload
-        );
-
-
+      if (hasFirebaseConfig && db) {
+        const newRef = push(ref(db, "fares"));
+        await set(newRef, payload);
       } else {
-
-
         setLocalFares((prev) => {
-
           const id = `fare-${Date.now()}`;
 
-
           const next = {
             ...prev,
             [id]: payload,
           };
 
-
-          setFares(
-            toArray(next)
-          );
-
+          setFares(toArray(next));
 
           return next;
-
         });
-
       }
-
     },
-    []
+    [db]
   );
 
-
-
-
-
-
-
   const updateFare = useCallback(
-    async (
-      id: string,
-      {
-        route,
-        regular,
-        discounted,
-      }: FareInput
-    ) => {
-
-
+    async (id: string, { route, regular, discounted }: FareInput) => {
       const payload = {
         route,
         regular: Number(regular),
@@ -234,93 +127,41 @@ export function useFares() {
         updatedAt: Date.now(),
       };
 
-
-
-      if (hasFirebaseConfig) {
-
-        await update(
-          ref(db, `fares/${id}`),
-          payload
-        );
-
-
+      if (hasFirebaseConfig && db) {
+        await update(ref(db, `fares/${id}`), payload);
       } else {
-
-
         setLocalFares((prev) => {
-
           const next = {
             ...prev,
             [id]: payload,
           };
 
-
-          setFares(
-            toArray(next)
-          );
-
+          setFares(toArray(next));
 
           return next;
-
         });
-
       }
-
     },
     []
   );
 
+  const deleteFare = useCallback(async (id: string) => {
+    if (hasFirebaseConfig && db) {
+      await remove(ref(db, `fares/${id}`));
+    } else {
+      setLocalFares((prev) => {
+        const next = {
+          ...prev,
+        };
 
+        delete next[id];
 
+        setFares(toArray(next));
 
-
-
-
-  const deleteFare = useCallback(
-    async (id: string) => {
-
-
-      if (hasFirebaseConfig) {
-
-
-        await remove(
-          ref(db, `fares/${id}`)
-        );
-
-
-      } else {
-
-
-        setLocalFares((prev) => {
-
-          const next = {
-            ...prev,
-          };
-
-
-          delete next[id];
-
-
-          setFares(
-            toArray(next)
-          );
-
-
-          return next;
-
-        });
-
-      }
-
-    },
-    []
-  );
-
-
-
-
-
-
+        return next;
+      });
+    }
+  }, []);
 
   return {
     fares,
@@ -328,10 +169,6 @@ export function useFares() {
     addFare,
     updateFare,
     deleteFare,
-    source: (
-      hasFirebaseConfig
-        ? "firebase"
-        : "local"
-    ) as FareSource,
+    source: hasFirebaseConfig ? "firebase" : "mock",
   };
 }

@@ -1,11 +1,9 @@
 "use client";
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
 
-// These values come from your Firebase project settings. In development,
-// put them in a `.env.local` file (see .env.local.example). Only the
-// databaseURL is required to point at the existing bus-tracking RTDB.
+import { getDatabase, Database } from "firebase/database";
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -16,5 +14,18 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const db = getDatabase(firebaseApp);
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey &&
+    firebaseConfig.databaseURL &&
+    firebaseConfig.projectId
+);
+
+let db: Database | null = null;
+
+if (hasFirebaseConfig) {
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+  db = getDatabase(app);
+}
+
+export { db, hasFirebaseConfig };

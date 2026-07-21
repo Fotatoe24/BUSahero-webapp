@@ -1,12 +1,6 @@
 "use client";
 
-interface Fare {
-  id: string;
-  route: string;
-  regular: number | string;
-  discounted: number | string;
-  updatedAt: string | Date;
-}
+import { Fare } from "@/types/fare";
 
 interface FareTableProps {
   fares: Fare[];

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ref, onValue } from "firebase/database";
-import { db } from "./firebase";
+import { db, hasFirebaseConfig } from "./firebase";
 
 interface Bus {
   id: string;
@@ -68,10 +68,6 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
   return out.sort((a, b) => a.id.localeCompare(b.id));
 }
 
-const hasFirebaseConfig = Boolean(
-  process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
-);
-
 export function useRealtimeBuses() {
   const [buses, setBuses] = useState<Bus[]>([]);
 
@@ -115,6 +111,7 @@ export function useRealtimeBuses() {
 
       return () => clearInterval(interval);
     }
+    if (!db) return;
 
     const busesRef = ref(db, "buses");
 
