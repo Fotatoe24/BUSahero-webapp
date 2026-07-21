@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-interface Fare {
-  id: string;
-  route: string;
-  regular: number | string;
-  discounted: number | string;
-}
+import { Fare } from "@/types/fare";
 
 interface FareModalProps {
   open: boolean;

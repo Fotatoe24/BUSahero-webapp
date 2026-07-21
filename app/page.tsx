@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import BusStatusList from "@/components/BusStatusList";
+import RealtimeMap from "@/components/RealtimeMap";
 
 import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
 
@@ -22,6 +23,7 @@ export default function DashboardPage() {
         />
 
         <div className="content">
+          {/* Statistics */}
           <div className="stat-grid">
             <StatCard
               label="Active buses"
@@ -38,8 +40,17 @@ export default function DashboardPage() {
               label="Stopped"
               value={buses.filter((bus) => bus.status === "Stopped").length}
             />
+
+            <StatCard
+              label="Delayed"
+              value={buses.filter((bus) => bus.status === "Delayed").length}
+            />
           </div>
 
+          {/* Mock Realtime Map */}
+          <RealtimeMap buses={buses} />
+
+          {/* Bus List */}
           <div className="card">
             <div className="card-head">
               <div>
