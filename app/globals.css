@@ -852,3 +852,44 @@ tbody tr:last-child td {
 .bus-marker.stopped {
   opacity: .6;
 }
+
+.maptiler-map {
+  height: 420px;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.map-bus-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.map-bus-pin:hover {
+  transform: scale(1.15);
+}
+
+.map-bus-pin span {
+  margin-top: 5px;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--ink-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-bus-pin.moving {
+  filter: drop-shadow(0 0 8px var(--route-green));
+}
+
+.map-bus-pin.stopped {
+  opacity: 0.6;
+}
