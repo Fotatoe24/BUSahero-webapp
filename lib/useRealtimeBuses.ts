@@ -57,11 +57,15 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
 
   Object.entries(busesByRegion ?? {}).forEach(([region, busesInRegion]) => {
     Object.entries(busesInRegion ?? {}).forEach(([busId, data]) => {
-      out.push({
-        id: busId,
-        region,
-        ...data,
-      });
+      const lat = Number(data?.latitude);
+      const lng = Number(data?.longitude);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        console.warn(`Skipping bus ${busId}: invalid coordinates`, data);
+        return;
+      }
+
+      out.push({ id: busId, region, ...data, latitude: lat, longitude: lng });
     });
   });
 

@@ -46,6 +46,10 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
     const seen = new Set<string>();
 
     buses.forEach((bus) => {
+      if (!Number.isFinite(bus.latitude) || !Number.isFinite(bus.longitude)) {
+        console.warn(`Skipping bus ${bus.id}: invalid coordinates`, bus);
+        return; // skip this bus, continue with the rest
+      }
       seen.add(bus.id);
 
       const className = `map-bus-pin ${
