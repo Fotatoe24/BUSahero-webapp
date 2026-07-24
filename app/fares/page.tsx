@@ -11,6 +11,7 @@ import FareModal from "@/components/FareModal";
 import { useToast } from "@/components/Toast";
 import { useFares } from "@/lib/useFares";
 import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
+import AuthGuard from "@/components/AuthGuard";
 
 export default function FaresPage() {
   const { fares, loading, addFare, updateFare, deleteFare, source } =
@@ -85,67 +86,69 @@ export default function FaresPage() {
     : 0;
 
   return (
-    <div className="shell">
-      <Sidebar />
+    <AuthGuard>
+      <div className="shell">
+        <Sidebar />
 
-      <div className="main">
-        <Topbar
-          title="Fares"
-          subtitle="Route pricing and discounts"
-          source={source === "firebase" ? "firebase" : "mock"}
-        />
+        <div className="main">
+          <Topbar
+            title="Fares"
+            subtitle="Route pricing and discounts"
+            source={source === "firebase" ? "firebase" : "mock"}
+          />
 
-        <div className="content">
-          <div className="stat-grid">
-            <StatCard
-              label="Active buses"
-              value={buses.length}
-              foot="currently tracked"
-            />
+          <div className="content">
+            <div className="stat-grid">
+              <StatCard
+                label="Active buses"
+                value={buses.length}
+                foot="currently tracked"
+              />
 
-            <StatCard
-              label="Routes priced"
-              value={fares.length}
-              foot="fare rules configured"
-            />
+              <StatCard
+                label="Routes priced"
+                value={fares.length}
+                foot="fare rules configured"
+              />
 
-            <StatCard label="Avg. regular fare" value={`₱${avgRegular}`} />
+              <StatCard label="Avg. regular fare" value={`₱${avgRegular}`} />
 
-            <StatCard
-              label="Avg. discounted fare"
-              value={`₱${avgDiscounted}`}
-            />
-          </div>
-
-          <div className="card">
-            <div className="card-head">
-              <div>
-                <div className="section-title">Fares</div>
-
-                <div className="section-sub">
-                  Set the regular and discounted fare per route
-                </div>
-              </div>
-
-              <button className="btn btn-primary" onClick={openNew}>
-                + New Fare
-              </button>
+              <StatCard
+                label="Avg. discounted fare"
+                value={`₱${avgDiscounted}`}
+              />
             </div>
 
-            <FareTable fares={fares} loading={loading} onEdit={openEdit} />
+            <div className="card">
+              <div className="card-head">
+                <div>
+                  <div className="section-title">Fares</div>
+
+                  <div className="section-sub">
+                    Set the regular and discounted fare per route
+                  </div>
+                </div>
+
+                <button className="btn btn-primary" onClick={openNew}>
+                  + New Fare
+                </button>
+              </div>
+
+              <FareTable fares={fares} loading={loading} onEdit={openEdit} />
+            </div>
           </div>
         </div>
+
+        <FareModal
+          open={modalOpen}
+          fare={editingFare}
+          onClose={closeModal}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+
+        <Toast />
       </div>
-
-      <FareModal
-        open={modalOpen}
-        fare={editingFare}
-        onClose={closeModal}
-        onSave={handleSave}
-        onDelete={handleDelete}
-      />
-
-      <Toast />
-    </div>
+    </AuthGuard>
   );
 }
