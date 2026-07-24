@@ -1,69 +1,107 @@
 "use client";
 
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
-import StatCard from "@/components/StatCard";
-import BusStatusList from "@/components/BusStatusList";
-import RealtimeMap from "@/components/RealtimeMap";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/lib/useAuth";
 
-import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
+export default function LoginPage() {
+  const { user, loading, signIn } = useAuth();
+  const router = useRouter();
 
-export default function DashboardPage() {
-  const { buses, loading, source } = useRealtimeBuses();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!loading && user) {
+    router.replace("/dashboard");
+    return null;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+
+    const { error } = await signIn(email, password);
+
+    setSubmitting(false);
+
+    if (error) {
+      setError(error);
+      return;
+    }
+
+    router.push("/dashboard");
+  }
 
   return (
-    <div className="shell">
-      <Sidebar />
-
-      <div className="main">
-        <Topbar
-          title="Dashboard"
-          subtitle="Real-time bus monitoring"
-          source={source === "firebase" ? "firebase" : "mock"}
-        />
-
-        <div className="content">
-          {/* Statistics */}
-          <div className="stat-grid">
-            <StatCard
-              label="Active buses"
-              value={buses.length}
-              foot="currently tracked"
-            />
-
-            <StatCard
-              label="In transit"
-              value={buses.filter((bus) => bus.status === "In Transit").length}
-            />
-
-            <StatCard
-              label="Stopped"
-              value={buses.filter((bus) => bus.status === "Stopped").length}
-            />
-
-            <StatCard
-              label="Delayed"
-              value={buses.filter((bus) => bus.status === "Delayed").length}
-            />
-          </div>
-
-          {/* Mock Realtime Map */}
-          <RealtimeMap buses={buses} />
-
-          {/* Bus List */}
-          <div className="card">
-            <div className="card-head">
-              <div>
-                <div className="section-title">Bus Status</div>
-
-                <div className="section-sub">Live GPS monitoring</div>
-              </div>
-            </div>
-
-            <BusStatusList buses={buses} loading={loading} />
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "var(--paper)",
+      }}
+    >
+      <form className="modal" style={{ width: 380 }} onSubmit={handleSubmit}>
+        <div className="modal-head">
+          <div>
+            <div className="modal-title">BUSAhero</div>
+            <div className="section-sub">Operator Sign In</div>
           </div>
         </div>
-      </div>
+
+        <div className="modal-body">
+          <label className="field-label" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            className="text-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <label className="field-label" htmlFor="password">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            className="text-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
+        </div>
+
+        <div className="modal-foot">
+          <span style={{ fontSize: 12.5 }}>
+            No account?{" "}
+            <Link
+              href="/register"
+              style={{ color: "var(--blue-600)", fontWeight: 600 }}
+            >
+              Register
+            </Link>
+          </span>
+
+          <button
+            className="btn btn-primary"
+            type="submit"
+            disabled={submitting}
+          >
+            {submitting ? "Signing in…" : "Sign In"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
