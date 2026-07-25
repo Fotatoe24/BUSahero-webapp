@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/useAuth";
 
 export default function LoginPage() {
-  const { user, loading, signIn } = useAuth();
+  const { operator, loading, signIn } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -14,8 +14,13 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  if (!loading && user) {
-    router.replace("/dashboard");
+  useEffect(() => {
+    if (!loading && operator) {
+      router.replace("/dashboard");
+    }
+  }, [loading, operator, router]);
+
+  if (loading || operator) {
     return null;
   }
 
