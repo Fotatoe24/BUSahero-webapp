@@ -7,11 +7,16 @@ import {
   useState,
   ReactNode,
 } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { supabase, hasSupabaseConfig } from "./supabase";
+
+interface Operator {
+  id: string;
+  email: string;
+  full_name: string;
+  fleet_name: string | null;
+}
 
 interface AuthContextValue {
-  user: User | null;
+  operator: Operator | null;
   loading: boolean;
   signIn: (
     email: string,
@@ -29,38 +34,31 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(hasSupabaseConfig);
+  const [operator, setOperator] = useState<Operator | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function refresh() {
+    const res = await fetch("/api/me");
+    const data = await res.json();
+    setOperator(data.operator);
+  }
 
   useEffect(() => {
-    if (!hasSupabaseConfig || !supabase) {
-      setLoading(false);
-      return;
-    }
-
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session: Session | null) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
+    refresh().finally(() => setLoading(false));
   }, []);
 
   async function signIn(email: string, password: string) {
-    if (!supabase) return { error: "Supabase is not configured." };
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
 
-    return { error: error?.message ?? null };
+    const data = await res.json();
+    if (!res.ok) return { error: data.error || "Sign in failed." };
+
+    await refresh();
+    return { error: null };
   }
 
   async function signUp(
@@ -69,38 +67,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fullName: string,
     fleetName: string
   ) {
-    if (!supabase) return { error: "Supabase is not configured." };
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName, fleet_name: fleetName },
-      },
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, fullName, fleetName }),
     });
 
-    if (error) return { error: error.message };
+    const data = await res.json();
+    if (!res.ok) return { error: data.error || "Registration failed." };
 
-    // profile row (id must match auth.users.id via RLS policy, see SQL below)
-    if (data.user) {
-      await supabase.from("operators").insert({
-        id: data.user.id,
-        email,
-        full_name: fullName,
-        fleet_name: fleetName,
-      });
-    }
-
+    await refresh();
     return { error: null };
   }
 
   async function signOut() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    await fetch("/api/logout", { method: "POST" });
+    setOperator(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{ operator, loading, signIn, signUp, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );

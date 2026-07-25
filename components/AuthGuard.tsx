@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { operator, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/"); // login now lives at "/"
+    if (!loading && !operator) {
+      router.replace("/"); // login lives at "/"
     }
-  }, [loading, user, router]);
+  }, [loading, operator, router]);
 
-  if (loading || !user) {
+  if (loading || !operator) {
     return <div className="empty-state">Checking your session…</div>;
   }
 
