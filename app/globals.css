@@ -167,10 +167,46 @@ button {
   border-radius: 0 3px 3px 0;
 }
 
+/* ---------- Sidebar logout ---------- */
 .sidebar-foot {
   margin-top: auto;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #c3cae8;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.logout-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+.logout-btn:hover {
+  background: rgba(226, 76, 76, 0.18);
+  border-color: rgba(226, 76, 76, 0.4);
+  color: #ffc7c7;
+}
+
+.logout-btn:active {
+  background: rgba(226, 76, 76, 0.26);
 }
 
 .op-card {
