@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+import { useAuth } from "@/lib/useAuth";
 
 interface NavItem {
   href: string;
@@ -9,12 +11,25 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/", label: "Dashboard" },
   { href: "/fares", label: "Fares" },
+  { href: "/bus-info", label: "Bus Info" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const { operator, loading, signOut } = useAuth();
+
+  const displayName = operator?.full_name || operator?.email || "Guest";
+  const roleLine = operator?.fleet_name || operator?.email || "Fleet Operator";
+  const initial = displayName.charAt(0).toUpperCase();
+
+  async function handleLogout() {
+    await signOut();
+    router.replace("/login");
+  }
 
   return (
     <aside className="sidebar">
@@ -44,14 +59,18 @@ export default function Sidebar() {
 
       <div className="sidebar-foot">
         <div className="op-card">
-          <div className="op-avatar">R</div>
+          <div className="op-avatar">{loading ? "…" : initial}</div>
 
           <div>
-            <div className="op-name">Rosa Santos</div>
+            <div className="op-name">{loading ? "Loading…" : displayName}</div>
 
-            <div className="op-role">Fleet Operator</div>
+            <div className="op-role">{loading ? "" : roleLine}</div>
           </div>
         </div>
+
+        <button className="logout-btn" onClick={handleLogout}>
+          ⏻ Log out
+        </button>
       </div>
     </aside>
   );
