@@ -1183,6 +1183,25 @@ tbody tr:last-child td {
   font-weight: 600;
 }
 
+/* Real logo image on the login page (replaces the emoji brand-mark) */
+.login-logo-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 @media (max-width: 520px) {
   .login-card {
     padding: 28px 22px 24px;
