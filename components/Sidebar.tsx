@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -34,7 +35,15 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand-mark">🚌</div>
+        <div className="brand-mark">
+          <Image
+            src="/logo.jpe"
+            alt="BUSAhero logo"
+            width={34}
+            height={34}
+            className="brand-logo"
+          />
+        </div>
 
         <div>
           <div className="brand-name">BUSAhero</div>
@@ -69,7 +78,8 @@ export default function Sidebar() {
         </div>
 
         <button className="logout-btn" onClick={handleLogout}>
-          ⏻ Log out
+          <span className="logout-icon">⏻</span>
+          Log out
         </button>
       </div>
     </aside>
