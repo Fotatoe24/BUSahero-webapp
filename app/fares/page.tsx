@@ -7,7 +7,7 @@ import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import FareTable from "@/components/FareTable";
 import FareModal from "@/components/FareModal";
-import FareCalculator from "@/components/fareCalculator";
+import FareCalculator from "@/components/FareCalculator";
 
 import { useToast } from "@/components/Toast";
 import { useFares } from "@/lib/useFares";
