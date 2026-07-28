@@ -1,6 +1,7 @@
 "use client";
 
 import { Fare } from "@/types/fare";
+import { getFareBreakdown, formatPeso } from "../lib/fareCalculator";
 
 interface FareTableProps {
   fares: Fare[];
@@ -26,37 +27,44 @@ export default function FareTable({ fares, loading, onEdit }: FareTableProps) {
       <thead>
         <tr>
           <th>Route</th>
+          <th>Distance</th>
           <th>Regular fare</th>
-          <th>Student / senior fare</th>
+          <th>Student / Elderly / PWD</th>
           <th>Last updated</th>
           <th></th>
         </tr>
       </thead>
 
       <tbody>
-        {fares.map((fare) => (
-          <tr key={fare.id}>
-            <td className="pname">{fare.route}</td>
+        {fares.map((fare) => {
+          const { regular, discounted } = getFareBreakdown(fare.distanceKm);
 
-            <td className="mono">₱{fare.regular}</td>
+          return (
+            <tr key={fare.id}>
+              <td className="pname">{fare.route}</td>
 
-            <td className="mono">₱{fare.discounted}</td>
+              <td className="mono">{fare.distanceKm} km</td>
 
-            <td className="mono">
-              {new Date(fare.updatedAt).toLocaleDateString()}
-            </td>
+              <td className="mono">{formatPeso(regular)}</td>
 
-            <td>
-              <button
-                className="row-btn"
-                title="Edit fare"
-                onClick={() => onEdit(fare.id)}
-              >
-                ✎
-              </button>
-            </td>
-          </tr>
-        ))}
+              <td className="mono">{formatPeso(discounted)}</td>
+
+              <td className="mono">
+                {new Date(fare.updatedAt).toLocaleDateString()}
+              </td>
+
+              <td>
+                <button
+                  className="row-btn"
+                  title="Edit fare"
+                  onClick={() => onEdit(fare.id)}
+                >
+                  ✎
+                </button>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

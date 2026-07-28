@@ -8,31 +8,28 @@ import { db, hasFirebaseConfig } from "./firebase";
 
 interface FareInput {
   route: string;
-  regular: string | number;
-  discounted: string | number;
+  distanceKm: string | number;
 }
 
 type FareSource = "firebase" | "mock";
 
+// Approximate road distances for the seeded demo routes (km).
 const SEED_FARES: Record<string, Omit<Fare, "id">> = {
   "fare-1": {
     route: "Olongapo → Iba",
-    regular: 180,
-    discounted: 144,
+    distanceKm: 75,
     updatedAt: Date.now(),
   },
 
   "fare-2": {
     route: "Olongapo → Botolan",
-    regular: 120,
-    discounted: 96,
+    distanceKm: 40,
     updatedAt: Date.now(),
   },
 
   "fare-3": {
     route: "Olongapo → Subic",
-    regular: 45,
-    discounted: 36,
+    distanceKm: 15,
     updatedAt: Date.now(),
   },
 };
@@ -89,11 +86,10 @@ export function useFares() {
   }, []);
 
   const addFare = useCallback(
-    async ({ route, regular, discounted }: FareInput) => {
+    async ({ route, distanceKm }: FareInput) => {
       const payload = {
         route,
-        regular: Number(regular),
-        discounted: Number(discounted),
+        distanceKm: Number(distanceKm),
         updatedAt: Date.now(),
       };
 
@@ -119,11 +115,10 @@ export function useFares() {
   );
 
   const updateFare = useCallback(
-    async (id: string, { route, regular, discounted }: FareInput) => {
+    async (id: string, { route, distanceKm }: FareInput) => {
       const payload = {
         route,
-        regular: Number(regular),
-        discounted: Number(discounted),
+        distanceKm: Number(distanceKm),
         updatedAt: Date.now(),
       };
 

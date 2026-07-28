@@ -2,16 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Fare } from "@/types/fare";
+import { getFareBreakdown, formatPeso } from "../lib/fareCalculator";
 
 interface FareModalProps {
   open: boolean;
   fare?: Fare | null;
   onClose: () => void;
-  onSave: (values: {
-    route: string;
-    regular: string;
-    discounted: string;
-  }) => void;
+  onSave: (values: { route: string; distanceKm: string }) => void;
   onDelete: (id: string) => void;
 }
 
@@ -23,15 +20,13 @@ export default function FareModal({
   onDelete,
 }: FareModalProps) {
   const [route, setRoute] = useState<string>("");
-  const [regular, setRegular] = useState<string>("");
-  const [discounted, setDiscounted] = useState<string>("");
+  const [distanceKm, setDistanceKm] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
     if (open) {
       setRoute(fare?.route ?? "");
-      setRegular(fare?.regular?.toString() ?? "");
-      setDiscounted(fare?.discounted?.toString() ?? "");
+      setDistanceKm(fare?.distanceKm?.toString() ?? "");
       setError("");
     }
   }, [open, fare]);
@@ -40,16 +35,20 @@ export default function FareModal({
 
   const isEditing = Boolean(fare);
 
+  const distanceValue = Number(distanceKm);
+  const hasValidDistance = distanceKm !== "" && distanceValue > 0;
+
+  const preview = hasValidDistance ? getFareBreakdown(distanceValue) : null;
+
   function handleSave() {
-    if (!route.trim() || regular === "" || discounted === "") {
-      setError("Route and both fares are required.");
+    if (!route.trim() || !hasValidDistance) {
+      setError("Route and a distance greater than 0 km are required.");
       return;
     }
 
     onSave({
       route: route.trim(),
-      regular,
-      discounted,
+      distanceKm,
     });
   }
 
@@ -86,35 +85,82 @@ export default function FareModal({
             onChange={(e) => setRoute(e.target.value)}
           />
 
-          <label className="field-label" htmlFor="fareRegular">
-            Regular fare (₱)
+          <label className="field-label" htmlFor="fareDistance">
+            Distance (km)
           </label>
 
           <input
-            id="fareRegular"
+            id="fareDistance"
             className="text-input"
             type="number"
             min="0"
-            step="1"
+            step="0.1"
             placeholder="0"
-            value={regular}
-            onChange={(e) => setRegular(e.target.value)}
+            value={distanceKm}
+            onChange={(e) => setDistanceKm(e.target.value)}
           />
 
-          <label className="field-label" htmlFor="fareDiscounted">
-            Student / senior fare (₱)
-          </label>
+          <div
+            style={{
+              background: "var(--paper)",
+              border: "1px solid var(--line)",
+              borderRadius: 10,
+              padding: "12px 14px",
+              marginBottom: 14,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: "var(--ink-500)",
+                marginBottom: 8,
+              }}
+            >
+              LTFRB fare guide (auto-computed)
+            </div>
 
-          <input
-            id="fareDiscounted"
-            className="text-input"
-            type="number"
-            min="0"
-            step="1"
-            placeholder="0"
-            value={discounted}
-            onChange={(e) => setDiscounted(e.target.value)}
-          />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 13, color: "var(--ink-700)" }}>
+                Regular fare
+              </span>
+
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                }}
+              >
+                {preview ? formatPeso(preview.regular) : "—"}
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: 4,
+              }}
+            >
+              <span style={{ fontSize: 13, color: "var(--ink-700)" }}>
+                Student / Elderly / PWD
+              </span>
+
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  color: "var(--route-green)",
+                }}
+              >
+                {preview ? formatPeso(preview.discounted) : "—"}
+              </span>
+            </div>
+          </div>
 
           <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
         </div>
