@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Fare } from "@/types/fare";
-import { getFareBreakdown, formatPeso } from "../lib/fareCalculator";
+import { getFareBreakdown, formatPeso } from "@/lib/fareCalculator";
 
 interface FareModalProps {
   open: boolean;
