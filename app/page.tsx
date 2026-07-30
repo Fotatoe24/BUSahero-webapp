@@ -242,8 +242,8 @@ export default function LoginPage() {
         <div className="login-logo">
           <div className="login-logo-mark">
             <Image
-              src="/logo.jpe"
-              alt="BUSAhero logo"
+              src="/logo.jpg"
+              alt="BUSahero logo"
               width={40}
               height={40}
               priority
@@ -251,7 +251,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <div className="brand-name">BUSAhero</div>
+            <div className="brand-name">BUSahero</div>
             <div className="brand-sub">Operator Console</div>
           </div>
         </div>
