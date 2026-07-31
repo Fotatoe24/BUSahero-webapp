@@ -1,12 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getFareBreakdown, formatPeso } from "@/lib/fareCalculator";
+import {
+  TOWN_ROUTES,
+  getRouteLabel,
+  findTownRoute,
+} from "@/lib/routeDistances";
 
-const QUICK_DISTANCES = [5, 15, 40, 75, 150, 300];
+const CUSTOM_TOWN_ID = "__custom__";
 
 export default function FareCalculator() {
-  const [distanceKm, setDistanceKm] = useState<string>("15");
+  const [selectedTownId, setSelectedTownId] = useState<string>(
+    TOWN_ROUTES[0]?.id ?? CUSTOM_TOWN_ID
+  );
+
+  const [distanceKm, setDistanceKm] = useState<string>(
+    TOWN_ROUTES[0] ? TOWN_ROUTES[0].distanceKm.toString() : "15"
+  );
+
+  const selectedRoute = useMemo(
+    () =>
+      selectedTownId === CUSTOM_TOWN_ID
+        ? undefined
+        : findTownRoute(selectedTownId),
+    [selectedTownId]
+  );
+
+  function handleTownChange(id: string) {
+    setSelectedTownId(id);
+
+    if (id !== CUSTOM_TOWN_ID) {
+      const route = findTownRoute(id);
+
+      if (route) {
+        setDistanceKm(route.distanceKm.toString());
+      }
+    }
+  }
+
+  function handleDistanceChange(value: string) {
+    setDistanceKm(value);
+
+    // Manual edits detach the field from whichever town was selected,
+    // since the number no longer matches that town's fixed distance.
+    setSelectedTownId(CUSTOM_TOWN_ID);
+  }
 
   const distanceValue = Number(distanceKm);
   const hasValidDistance = distanceKm !== "" && distanceValue > 0;
@@ -29,11 +68,33 @@ export default function FareCalculator() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
+            gridTemplateColumns: "1fr 1fr",
             gap: 14,
-            alignItems: "end",
+            marginBottom: 14,
           }}
         >
+          <div>
+            <label className="field-label" htmlFor="calcTown">
+              Destination town
+            </label>
+
+            <select
+              id="calcTown"
+              className="text-input"
+              style={{ marginBottom: 0 }}
+              value={selectedTownId}
+              onChange={(e) => handleTownChange(e.target.value)}
+            >
+              {TOWN_ROUTES.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.town} — {r.distanceKm} km
+                </option>
+              ))}
+
+              <option value={CUSTOM_TOWN_ID}>Custom distance…</option>
+            </select>
+          </div>
+
           <div>
             <label className="field-label" htmlFor="calcDistance">
               Distance (km)
@@ -47,10 +108,25 @@ export default function FareCalculator() {
               step="0.1"
               style={{ marginBottom: 0 }}
               value={distanceKm}
-              onChange={(e) => setDistanceKm(e.target.value)}
+              onChange={(e) => handleDistanceChange(e.target.value)}
             />
           </div>
+        </div>
 
+        {selectedRoute && (
+          <div className="section-sub" style={{ marginBottom: 14 }}>
+            {getRouteLabel(selectedRoute.town)}
+          </div>
+        )}
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 14,
+            alignItems: "end",
+          }}
+        >
           <div
             style={{
               background: "var(--paper)",
@@ -125,14 +201,14 @@ export default function FareCalculator() {
             marginTop: 14,
           }}
         >
-          {QUICK_DISTANCES.map((km) => (
+          {TOWN_ROUTES.map((r) => (
             <button
-              key={km}
+              key={r.id}
               className="btn btn-ghost"
               style={{ padding: "6px 12px", fontSize: 12.5 }}
-              onClick={() => setDistanceKm(km.toString())}
+              onClick={() => handleTownChange(r.id)}
             >
-              {km} km
+              {r.town}
             </button>
           ))}
         </div>
