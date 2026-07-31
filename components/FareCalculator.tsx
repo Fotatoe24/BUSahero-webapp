@@ -5,52 +5,50 @@ import { getFareBreakdown, formatPeso } from "@/lib/fareCalculator";
 import {
   TOWN_ROUTES,
   getRouteLabel,
-  findTownRoute,
+  getDistanceBetween,
 } from "@/lib/routeDistances";
 
-const CUSTOM_TOWN_ID = "__custom__";
-
 export default function FareCalculator() {
-  const [selectedTownId, setSelectedTownId] = useState<string>(
-    TOWN_ROUTES[0]?.id ?? CUSTOM_TOWN_ID
+  const [fromId, setFromId] = useState<string>(TOWN_ROUTES[0]?.id ?? "");
+
+  const [toId, setToId] = useState<string>(
+    TOWN_ROUTES[1]?.id ?? TOWN_ROUTES[0]?.id ?? ""
   );
 
-  const [distanceKm, setDistanceKm] = useState<string>(
-    TOWN_ROUTES[0] ? TOWN_ROUTES[0].distanceKm.toString() : "15"
+  const [manualDistance, setManualDistance] = useState<string | null>(null);
+
+  const fromTown = useMemo(
+    () => TOWN_ROUTES.find((r) => r.id === fromId),
+    [fromId]
   );
 
-  const selectedRoute = useMemo(
-    () =>
-      selectedTownId === CUSTOM_TOWN_ID
-        ? undefined
-        : findTownRoute(selectedTownId),
-    [selectedTownId]
-  );
+  const toTown = useMemo(() => TOWN_ROUTES.find((r) => r.id === toId), [toId]);
 
-  function handleTownChange(id: string) {
-    setSelectedTownId(id);
+  const computedDistance = getDistanceBetween(fromId, toId);
 
-    if (id !== CUSTOM_TOWN_ID) {
-      const route = findTownRoute(id);
+  const distanceKm =
+    manualDistance !== null ? Number(manualDistance) : computedDistance;
 
-      if (route) {
-        setDistanceKm(route.distanceKm.toString());
-      }
-    }
+  const isSameTown = fromId === toId;
+  const hasValidDistance = !isSameTown && distanceKm > 0;
+
+  const breakdown = hasValidDistance ? getFareBreakdown(distanceKm) : null;
+
+  function handleFromChange(id: string) {
+    setFromId(id);
+    setManualDistance(null);
   }
 
-  function handleDistanceChange(value: string) {
-    setDistanceKm(value);
-
-    // Manual edits detach the field from whichever town was selected,
-    // since the number no longer matches that town's fixed distance.
-    setSelectedTownId(CUSTOM_TOWN_ID);
+  function handleToChange(id: string) {
+    setToId(id);
+    setManualDistance(null);
   }
 
-  const distanceValue = Number(distanceKm);
-  const hasValidDistance = distanceKm !== "" && distanceValue > 0;
-
-  const breakdown = hasValidDistance ? getFareBreakdown(distanceValue) : null;
+  function handleSwap() {
+    setFromId(toId);
+    setToId(fromId);
+    setManualDistance(null);
+  }
 
   return (
     <div className="card" style={{ marginBottom: 20 }}>
@@ -68,55 +66,91 @@ export default function FareCalculator() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 14,
+            gridTemplateColumns: "1fr auto 1fr",
+            gap: 10,
+            alignItems: "end",
             marginBottom: 14,
           }}
         >
           <div>
-            <label className="field-label" htmlFor="calcTown">
-              Destination town
+            <label className="field-label" htmlFor="calcFrom">
+              From
             </label>
 
             <select
-              id="calcTown"
+              id="calcFrom"
               className="text-input"
               style={{ marginBottom: 0 }}
-              value={selectedTownId}
-              onChange={(e) => handleTownChange(e.target.value)}
+              value={fromId}
+              onChange={(e) => handleFromChange(e.target.value)}
             >
               {TOWN_ROUTES.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.town} — {r.distanceKm} km
+                  {r.town}
                 </option>
               ))}
-
-              <option value={CUSTOM_TOWN_ID}>Custom distance…</option>
             </select>
           </div>
 
+          <button
+            type="button"
+            className="row-btn"
+            title="Swap From and To"
+            onClick={handleSwap}
+            style={{ marginBottom: 0 }}
+          >
+            ⇄
+          </button>
+
           <div>
-            <label className="field-label" htmlFor="calcDistance">
-              Distance (km)
+            <label className="field-label" htmlFor="calcTo">
+              To
             </label>
 
-            <input
-              id="calcDistance"
+            <select
+              id="calcTo"
               className="text-input"
-              type="number"
-              min="0"
-              step="0.1"
               style={{ marginBottom: 0 }}
-              value={distanceKm}
-              onChange={(e) => handleDistanceChange(e.target.value)}
-            />
+              value={toId}
+              onChange={(e) => handleToChange(e.target.value)}
+            >
+              {TOWN_ROUTES.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.town}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
-        {selectedRoute && (
+        <div style={{ marginBottom: 14 }}>
+          <label className="field-label" htmlFor="calcDistance">
+            Distance (km)
+          </label>
+
+          <input
+            id="calcDistance"
+            className="text-input"
+            type="number"
+            min="0"
+            step="0.1"
+            style={{ marginBottom: 0 }}
+            value={distanceKm}
+            onChange={(e) => setManualDistance(e.target.value)}
+          />
+        </div>
+
+        {isSameTown ? (
           <div className="section-sub" style={{ marginBottom: 14 }}>
-            {getRouteLabel(selectedRoute.town)}
+            Select two different towns to calculate a fare.
           </div>
+        ) : (
+          fromTown &&
+          toTown && (
+            <div className="section-sub" style={{ marginBottom: 14 }}>
+              {getRouteLabel(fromTown.town, toTown.town)}
+            </div>
+          )
         )}
 
         <div
@@ -191,26 +225,6 @@ export default function FareCalculator() {
               {breakdown ? formatPeso(breakdown.discounted) : "—"}
             </div>
           </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 8,
-            marginTop: 14,
-          }}
-        >
-          {TOWN_ROUTES.map((r) => (
-            <button
-              key={r.id}
-              className="btn btn-ghost"
-              style={{ padding: "6px 12px", fontSize: 12.5 }}
-              onClick={() => handleTownChange(r.id)}
-            >
-              {r.town}
-            </button>
-          ))}
         </div>
       </div>
     </div>
