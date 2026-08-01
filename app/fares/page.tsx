@@ -7,6 +7,7 @@ import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import FareTable from "@/components/FareTable";
 import FareSettingsModal from "@/components/FareSettingsModal";
+import FareCalculator from "@/components/FareCalculator";
 
 import { useToast } from "@/components/Toast";
 import { useFareSettings } from "@/lib/useFareSettings";
@@ -67,6 +68,9 @@ export default function FaresPage() {
               foot="sample calculation"
             />
           </div>
+
+          {/* Fare Calculator */}
+          <FareCalculator />
 
           <div className="card">
             <div className="card-head">
