@@ -37,7 +37,7 @@ export default function Sidebar() {
       <div className="brand">
         <div className="brand-mark">
           <Image
-            src="/logo.jpe"
+            src="/logo.jpg"
             alt="BUSAhero logo"
             width={34}
             height={34}
