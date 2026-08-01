@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { getFareBreakdown, formatPeso } from "@/lib/fareCalculator";
+import { useFareSettings } from "@/lib/useFareSettings";
 import {
   TOWN_ROUTES,
   getRouteLabel,
@@ -9,6 +10,8 @@ import {
 } from "@/lib/routeDistances";
 
 export default function FareCalculator() {
+  const { settings, loading: settingsLoading } = useFareSettings();
+
   const [fromId, setFromId] = useState<string>(TOWN_ROUTES[0]?.id ?? "");
 
   const [toId, setToId] = useState<string>(
@@ -32,7 +35,10 @@ export default function FareCalculator() {
   const isSameTown = fromId === toId;
   const hasValidDistance = !isSameTown && distanceKm > 0;
 
-  const breakdown = hasValidDistance ? getFareBreakdown(distanceKm) : null;
+  const breakdown =
+    hasValidDistance && !settingsLoading
+      ? getFareBreakdown(distanceKm, settings)
+      : null;
 
   function handleFromChange(id: string) {
     setFromId(id);
@@ -57,7 +63,11 @@ export default function FareCalculator() {
           <div className="section-title">Fare Calculator</div>
 
           <div className="section-sub">
-            LTFRB fare guide · ₱12.00 first 5 km, +₱2.20/km after
+            {settingsLoading
+              ? "Loading fare settings…"
+              : `₱${settings.baseFare.toFixed(2)} first ${
+                  settings.baseDistanceKm
+                } km · +₱${settings.perKmRate.toFixed(2)}/km after`}
           </div>
         </div>
       </div>

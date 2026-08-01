@@ -6,88 +6,32 @@ import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import FareTable from "@/components/FareTable";
-import FareModal from "@/components/FareModal";
-import FareCalculator from "@/components/FareCalculator";
+import FareSettingsModal from "@/components/FareSettingsModal";
 
 import { useToast } from "@/components/Toast";
-import { useFares } from "@/lib/useFares";
+import { useFareSettings } from "@/lib/useFareSettings";
 import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
-import {
-  getRegularFare,
-  getDiscountedFare,
-  formatPeso,
-} from "@/lib/fareCalculator";
+import { calculateFare } from "@/lib/fareCalculator";
 
 export default function FaresPage() {
-  const { fares, loading, addFare, updateFare, deleteFare, source } =
-    useFares();
-
+  const { settings, loading, updateSettings, source } = useFareSettings();
   const { buses } = useRealtimeBuses();
-
   const { showToast, Toast } = useToast();
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  const editingFare = editingId ? fares.find((f) => f.id === editingId) : null;
-
-  function openNew() {
-    setEditingId(null);
-    setModalOpen(true);
-  }
-
-  function openEdit(id: string) {
-    setEditingId(id);
-    setModalOpen(true);
-  }
-
-  function closeModal() {
+  async function handleSave(values: {
+    baseFare: number;
+    baseDistanceKm: number;
+    perKmRate: number;
+    discountPercent: number;
+  }) {
+    await updateSettings(values);
+    showToast("Fare calculation updated");
     setModalOpen(false);
-    setEditingId(null);
   }
 
-  async function handleSave(values: { route: string; distanceKm: string }) {
-    if (editingId) {
-      await updateFare(editingId, values);
-
-      showToast("Fare updated");
-    } else {
-      await addFare(values);
-
-      showToast("Fare added");
-    }
-
-    closeModal();
-  }
-
-  async function handleDelete(id: string) {
-    const confirmDelete = confirm("Delete this fare? This cannot be undone.");
-
-    if (!confirmDelete) return;
-
-    await deleteFare(id);
-
-    showToast("Fare deleted");
-
-    closeModal();
-  }
-
-  const avgRegular = fares.length
-    ? Math.round(
-        fares.reduce((sum, fare) => sum + getRegularFare(fare.distanceKm), 0) /
-          fares.length
-      )
-    : 0;
-
-  const avgDiscounted = fares.length
-    ? Math.round(
-        fares.reduce(
-          (sum, fare) => sum + getDiscountedFare(fare.distanceKm),
-          0
-        ) / fares.length
-      )
-    : 0;
+  const sample10kmFare = calculateFare(10, settings, false);
 
   return (
     <div className="shell">
@@ -96,7 +40,7 @@ export default function FaresPage() {
       <div className="main">
         <Topbar
           title="Fares"
-          subtitle="Route pricing and discounts"
+          subtitle="Distance-based fare calculation"
           source={source === "firebase" ? "firebase" : "mock"}
         />
 
@@ -107,53 +51,51 @@ export default function FaresPage() {
               value={buses.length}
               foot="currently tracked"
             />
-
             <StatCard
-              label="Routes priced"
-              value={fares.length}
-              foot="fare rules configured"
+              label="Base fare"
+              value={`₱${settings.baseFare.toFixed(2)}`}
+              foot={`first ${settings.baseDistanceKm} km`}
             />
-
             <StatCard
-              label="Avg. regular fare"
-              value={formatPeso(avgRegular)}
+              label="Rate per km"
+              value={`₱${settings.perKmRate.toFixed(2)}`}
+              foot="beyond base distance"
             />
-
             <StatCard
-              label="Avg. discounted fare"
-              value={formatPeso(avgDiscounted)}
+              label="10 km fare"
+              value={`₱${sample10kmFare.toFixed(2)}`}
+              foot="sample calculation"
             />
           </div>
-
-          <FareCalculator />
 
           <div className="card">
             <div className="card-head">
               <div>
-                <div className="section-title">Fares</div>
-
+                <div className="section-title">Fare Calculation</div>
                 <div className="section-sub">
-                  Fares are computed from route distance per the LTFRB fare
-                  guide
+                  All fares are computed from this formula — no per-route
+                  pricing
                 </div>
               </div>
 
-              <button className="btn btn-primary" onClick={openNew}>
-                + New Fare
+              <button
+                className="btn btn-primary"
+                onClick={() => setModalOpen(true)}
+              >
+                Edit Fare Calculation
               </button>
             </div>
 
-            <FareTable fares={fares} loading={loading} onEdit={openEdit} />
+            <FareTable settings={settings} loading={loading} />
           </div>
         </div>
       </div>
 
-      <FareModal
+      <FareSettingsModal
         open={modalOpen}
-        fare={editingFare}
-        onClose={closeModal}
+        settings={settings}
+        onClose={() => setModalOpen(false)}
         onSave={handleSave}
-        onDelete={handleDelete}
       />
 
       <Toast />

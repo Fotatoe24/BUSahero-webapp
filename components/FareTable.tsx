@@ -1,70 +1,42 @@
 "use client";
 
-import { Fare } from "@/types/fare";
-import { getFareBreakdown, formatPeso } from "../lib/fareCalculator";
+import { FareSettings } from "@/types/fareSettings";
+import { calculateFare } from "@/lib/fareCalculator";
 
 interface FareTableProps {
-  fares: Fare[];
+  settings: FareSettings;
   loading: boolean;
-  onEdit: (id: string) => void;
 }
 
-export default function FareTable({ fares, loading, onEdit }: FareTableProps) {
-  if (loading) {
-    return <div className="empty-state">Loading fares…</div>;
-  }
+const PREVIEW_DISTANCES = [2, 5, 10, 15, 20, 25, 30];
 
-  if (!fares.length) {
-    return (
-      <div className="empty-state">
-        No fares configured yet. Add your first route fare.
-      </div>
-    );
+export default function FareTable({ settings, loading }: FareTableProps) {
+  if (loading) {
+    return <div className="empty-state">Loading fare settings…</div>;
   }
 
   return (
     <table>
       <thead>
         <tr>
-          <th>Route</th>
           <th>Distance</th>
           <th>Regular fare</th>
-          <th>Student / Elderly / PWD</th>
-          <th>Last updated</th>
-          <th></th>
+          <th>Discounted fare</th>
         </tr>
       </thead>
 
       <tbody>
-        {fares.map((fare) => {
-          const { regular, discounted } = getFareBreakdown(fare.distanceKm);
-
-          return (
-            <tr key={fare.id}>
-              <td className="pname">{fare.route}</td>
-
-              <td className="mono">{fare.distanceKm} km</td>
-
-              <td className="mono">{formatPeso(regular)}</td>
-
-              <td className="mono">{formatPeso(discounted)}</td>
-
-              <td className="mono">
-                {new Date(fare.updatedAt).toLocaleDateString()}
-              </td>
-
-              <td>
-                <button
-                  className="row-btn"
-                  title="Edit fare"
-                  onClick={() => onEdit(fare.id)}
-                >
-                  ✎
-                </button>
-              </td>
-            </tr>
-          );
-        })}
+        {PREVIEW_DISTANCES.map((km) => (
+          <tr key={km}>
+            <td className="pname">{km} km</td>
+            <td className="mono">
+              ₱{calculateFare(km, settings, false).toFixed(2)}
+            </td>
+            <td className="mono">
+              ₱{calculateFare(km, settings, true).toFixed(2)}
+            </td>
+          </tr>
+        ))}
       </tbody>
     </table>
   );
