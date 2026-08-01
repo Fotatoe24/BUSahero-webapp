@@ -293,6 +293,12 @@ export default function LoginPage() {
 
         <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
 
+        <div className="login-forgot-row">
+          <Link href="/forgot-password" className="login-forgot">
+            Forgot password?
+          </Link>
+        </div>
+
         <button
           type="submit"
           className="btn btn-primary login-submit"
