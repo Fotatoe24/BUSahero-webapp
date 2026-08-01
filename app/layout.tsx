@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: "BusaHero",
   description: "Bus Fare Management System",
 };
-
 export default function RootLayout({
   children,
 }: {
