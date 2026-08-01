@@ -1,22 +1,43 @@
 "use client";
 
-import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const [supabase] = useState(() => createClient());
 
+  const [ready, setReady] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    // Supabase's recovery link redirects here and sets a temporary
+    // session automatically. We just confirm one exists before
+    // letting the operator submit a new password.
+    supabase.auth.getSession().then(({ data }) => {
+      setReady(true);
+
+      if (!data.session) {
+        setError(
+          "This reset link is invalid or has expired. Please request a new one."
+        );
+      }
+    });
+  }, [supabase]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
 
     if (password !== confirm) {
       setError("Passwords don't match.");
@@ -25,36 +46,20 @@ function ResetPasswordForm() {
 
     setStatus("loading");
 
-    try {
-      const res = await fetch("/api/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
-      });
+    const { error } = await supabase.auth.updateUser({ password });
 
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(data.error || "Could not reset password.");
-      }
-
-      setStatus("done");
-      setTimeout(() => router.push("/"), 2000);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Could not reset password."
-      );
+    if (error) {
+      setError(error.message);
       setStatus("idle");
+      return;
     }
+
+    setStatus("done");
+    setTimeout(() => router.push("/"), 2000);
   }
 
-  if (!token) {
-    return (
-      <p style={{ fontSize: 13.5 }}>
-        This reset link is missing a token. Please request a new one from the{" "}
-        <Link href="/forgot-password">forgot password</Link> page.
-      </p>
-    );
+  if (!ready) {
+    return <p style={{ fontSize: 13.5 }}>Checking your reset link…</p>;
   }
 
   if (status === "done") {
@@ -65,8 +70,22 @@ function ResetPasswordForm() {
     );
   }
 
+  if (error && !password && !confirm) {
+    return (
+      <div>
+        <p style={{ fontSize: 13.5, marginBottom: 12 }}>{error}</p>
+        <Link
+          href="/forgot-password"
+          style={{ fontSize: 13.5, fontWeight: 600, color: "var(--blue-600)" }}
+        >
+          Request a new reset link →
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <label className="field-label" htmlFor="password">
         New password
       </label>
@@ -95,7 +114,7 @@ function ResetPasswordForm() {
         required
       />
 
-      {error && <div className="form-error show">{error}</div>}
+      <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
 
       <button
         type="submit"
