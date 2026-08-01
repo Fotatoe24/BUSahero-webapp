@@ -6,9 +6,8 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
 } from "react";
-import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
 
 interface Operator {
   id: string;
@@ -35,77 +34,42 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function fetchOperatorProfile(
-  supabase: ReturnType<typeof createClient>,
-  user: User
-): Promise<Operator> {
-  const { data, error } = await supabase
-    .from("operators")
-    .select("id, email, full_name, fleet_name")
-    .eq("id", user.id)
-    .single();
-
-  if (error || !data) {
-    // Fallback so a missing profile row doesn't hard-crash the app —
-    // full_name/fleet_name will just be blank until the row is fixed.
-    return {
-      id: user.id,
-      email: user.email ?? "",
-      full_name: "",
-      fleet_name: "",
-    };
-  }
-
-  return data;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [supabase] = useState(() => createClient());
   const [operator, setOperator] = useState<Operator | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshMe = useCallback(async () => {
+    try {
+      const res = await fetch("/api/me");
+      const data = await res.json();
+      setOperator(data.operator ?? null);
+    } catch {
+      setOperator(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (data.session?.user) {
-        const profile = await fetchOperatorProfile(supabase, data.session.user);
-        setOperator(profile);
-      }
-
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const profile = await fetchOperatorProfile(supabase, session.user);
-        setOperator(profile);
-      } else {
-        setOperator(null);
-      }
-
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+    refreshMe();
+  }, [refreshMe]);
 
   async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
 
-    if (error) {
-      return { error: "Invalid email or password." };
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return { error: data.error || "Invalid email or password." };
     }
 
-    return { error: null };
-  }
+    await refreshMe();
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    setOperator(null);
+    return { error: null };
   }
 
   async function signUp(
@@ -131,24 +95,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: data.error || "Could not create account." };
     }
 
-    // /api/register creates the Supabase Auth user server-side but
-    // doesn't sign them in — do that now so the client gets a session.
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      return { error: "Account created, but sign-in failed. Try logging in." };
-    }
+    // /api/register already establishes the session cookie on success.
+    await refreshMe();
 
     return { error: null };
   }
 
+  async function signOut() {
+    await fetch("/api/logout", { method: "POST" });
+    setOperator(null);
+  }
+
   return (
-    <AuthContext.Provider
-      value={{ operator, loading, signIn, signUp, signOut }}
-    >
+    <AuthContext.Provider value={{ operator, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

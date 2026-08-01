@@ -3,8 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import { createClient } from "@/lib/supabase/client";
-
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "sent">("idle");
@@ -15,17 +13,20 @@ export default function ForgotPasswordPage() {
     setError("");
     setStatus("loading");
 
-    const supabase = createClient();
+    try {
+      await fetch("/api/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+    } catch (err) {
+      console.error("forgot-password request failed:", err);
+    }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-
-    // Always show success, same anti-enumeration reasoning as before
-    if (error) console.error("resetPasswordForEmail error:", error);
-
+    // Always show success, regardless of outcome — anti-enumeration.
     setStatus("sent");
   }
+
   return (
     <div className="auth-shell">
       <div className="auth-card">

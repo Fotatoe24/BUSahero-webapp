@@ -1,34 +1,18 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const [supabase] = useState(() => createClient());
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
 
-  const [ready, setReady] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    // Supabase's recovery link redirects here and sets a temporary
-    // session automatically. We just confirm one exists before
-    // letting the operator submit a new password.
-    supabase.auth.getSession().then(({ data }) => {
-      setReady(true);
-
-      if (!data.session) {
-        setError(
-          "This reset link is invalid or has expired. Please request a new one."
-        );
-      }
-    });
-  }, [supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,20 +30,36 @@ function ResetPasswordForm() {
 
     setStatus("loading");
 
-    const { error } = await supabase.auth.updateUser({ password });
+    try {
+      const res = await fetch("/api/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
 
-    if (error) {
-      setError(error.message);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "Could not reset password.");
+      }
+
+      setStatus("done");
+      setTimeout(() => router.push("/"), 2000);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not reset password."
+      );
       setStatus("idle");
-      return;
     }
-
-    setStatus("done");
-    setTimeout(() => router.push("/"), 2000);
   }
 
-  if (!ready) {
-    return <p style={{ fontSize: 13.5 }}>Checking your reset link…</p>;
+  if (!token) {
+    return (
+      <p style={{ fontSize: 13.5 }}>
+        This reset link is missing a token. Please request a new one from the{" "}
+        <Link href="/forgot-password">forgot password</Link> page.
+      </p>
+    );
   }
 
   if (status === "done") {
@@ -67,20 +67,6 @@ function ResetPasswordForm() {
       <p style={{ fontSize: 13.5 }}>
         Password updated! Redirecting you to login…
       </p>
-    );
-  }
-
-  if (error && !password && !confirm) {
-    return (
-      <div>
-        <p style={{ fontSize: 13.5, marginBottom: 12 }}>{error}</p>
-        <Link
-          href="/forgot-password"
-          style={{ fontSize: 13.5, fontWeight: 600, color: "var(--blue-600)" }}
-        >
-          Request a new reset link →
-        </Link>
-      </div>
     );
   }
 
@@ -114,7 +100,7 @@ function ResetPasswordForm() {
         required
       />
 
-      <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
+      {error && <div className="form-error show">{error}</div>}
 
       <button
         type="submit"

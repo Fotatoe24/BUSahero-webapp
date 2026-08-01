@@ -1,45 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { jwtVerify } from "jose";
+
+const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
 
 export async function middleware(req: NextRequest) {
-  let response = NextResponse.next({
-    request: req,
-  });
+  const token = req.cookies.get("busahero_session")?.value;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            req.cookies.set(name, value)
-          );
-
-          response = NextResponse.next({
-            request: req,
-          });
-
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  if (!token) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  return response;
+  try {
+    await jwtVerify(token, secret);
+    return NextResponse.next();
+  } catch {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 }
 
 export const config = {
