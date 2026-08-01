@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { supabaseAdmin, hasSupabaseConfig } from "@/lib/supabaseAdmin";
-import { createSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
   if (!hasSupabaseConfig || !supabaseAdmin) {
@@ -11,58 +9,58 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { email, password, fullName, fleetName } = await req.json();
+  const { email, password, full_name, fleet_name } = await req.json();
 
-  if (!email || !password || !fullName) {
+  if (!email || !password) {
     return NextResponse.json(
-      { error: "Email, password, and full name are required." },
+      { error: "Email and password are required." },
       { status: 400 }
     );
   }
 
-  if (password.length < 6) {
+  if (password.length < 8) {
     return NextResponse.json(
-      { error: "Password must be at least 6 characters." },
+      { error: "Password must be at least 8 characters." },
       { status: 400 }
     );
   }
 
   const normalizedEmail = String(email).trim().toLowerCase();
 
-  const { data: existing } = await supabaseAdmin
-    .from("operators")
-    .select("id")
-    .eq("email", normalizedEmail)
-    .maybeSingle();
+  // Create the Supabase Auth user first — its id becomes the
+  // operators.id so useAuth's profile lookup lines up.
+  const { data: authData, error: authError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email: normalizedEmail,
+      password,
+      email_confirm: true,
+    });
 
-  if (existing) {
+  if (authError || !authData.user) {
     return NextResponse.json(
-      { error: "An account with that email already exists." },
-      { status: 409 }
+      { error: authError?.message || "Could not create account." },
+      { status: 400 }
     );
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const { error: profileError } = await supabaseAdmin.from("operators").insert({
+    id: authData.user.id,
+    email: normalizedEmail,
+    full_name: full_name ?? "",
+    fleet_name: fleet_name ?? "",
+  });
 
-  const { data, error } = await supabaseAdmin
-    .from("operators")
-    .insert({
-      email: normalizedEmail,
-      password_hash: passwordHash,
-      full_name: fullName,
-      fleet_name: fleetName || null,
-    })
-    .select("id, email")
-    .single();
+  if (profileError) {
+    // Roll back the auth user so we don't leave an orphaned account
+    // with no matching operator profile.
+    await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
 
-  if (error || !data) {
+    console.error("register profile insert error:", profileError);
     return NextResponse.json(
-      { error: "Could not create account." },
+      { error: "Could not create operator profile." },
       { status: 500 }
     );
   }
-
-  await createSession({ operatorId: data.id, email: data.email });
 
   return NextResponse.json({ ok: true });
 }
