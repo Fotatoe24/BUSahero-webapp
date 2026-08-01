@@ -24,6 +24,12 @@ interface AuthContextValue {
     email: string,
     password: string
   ) => Promise<{ error: string | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+    fleetName: string
+  ) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -102,8 +108,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setOperator(null);
   }
 
+  async function signUp(
+    email: string,
+    password: string,
+    fullName: string,
+    fleetName: string
+  ) {
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        full_name: fullName,
+        fleet_name: fleetName,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return { error: data.error || "Could not create account." };
+    }
+
+    // /api/register creates the Supabase Auth user server-side but
+    // doesn't sign them in — do that now so the client gets a session.
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { error: "Account created, but sign-in failed. Try logging in." };
+    }
+
+    return { error: null };
+  }
+
   return (
-    <AuthContext.Provider value={{ operator, loading, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ operator, loading, signIn, signUp, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
