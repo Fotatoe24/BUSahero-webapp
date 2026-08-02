@@ -1,59 +1,50 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BusInfo } from "@/types/busInfo";
+
+interface BusInfoModalBus {
+  id: string;
+  region: string;
+  driverName?: string;
+  plateNum?: string;
+}
 
 interface BusInfoModalProps {
   open: boolean;
-  busInfo?: BusInfo | null;
+  bus?: BusInfoModalBus | null;
   onClose: () => void;
-  onSave: (values: {
-    busNumber: string;
-    plateNumber: string;
-    driverName: string;
-    route?: string;
-  }) => void;
-  onDelete: (id: string) => void;
+  onSave: (values: { driverName: string; plateNum: string }) => void;
 }
 
 export default function BusInfoModal({
   open,
-  busInfo,
+  bus,
   onClose,
   onSave,
-  onDelete,
 }: BusInfoModalProps) {
-  const [busNumber, setBusNumber] = useState<string>("");
-  const [plateNumber, setPlateNumber] = useState<string>("");
   const [driverName, setDriverName] = useState<string>("");
-  const [route, setRoute] = useState<string>("");
+  const [plateNum, setPlateNum] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
     if (open) {
-      setBusNumber(busInfo?.busNumber ?? "");
-      setPlateNumber(busInfo?.plateNumber ?? "");
-      setDriverName(busInfo?.driverName ?? "");
-      setRoute(busInfo?.route ?? "");
+      setDriverName(bus?.driverName ?? "");
+      setPlateNum(bus?.plateNum ?? "");
       setError("");
     }
-  }, [open, busInfo]);
+  }, [open, bus]);
 
-  if (!open) return null;
-
-  const isEditing = Boolean(busInfo);
+  if (!open || !bus) return null;
 
   function handleSave() {
-    if (!busNumber.trim() || !plateNumber.trim() || !driverName.trim()) {
-      setError("Bus number, plate number, and driver name are required.");
+    if (!driverName.trim() || !plateNum.trim()) {
+      setError("Driver name and plate number are required.");
       return;
     }
 
     onSave({
-      busNumber: busNumber.trim(),
-      plateNumber: plateNumber.trim(),
       driverName: driverName.trim(),
-      route: route.trim() || undefined,
+      plateNum: plateNum.trim(),
     });
   }
 
@@ -61,16 +52,12 @@ export default function BusInfoModal({
     <div
       className="modal-overlay"
       onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
+        if (e.target === e.currentTarget) onClose();
       }}
     >
       <div className="modal">
         <div className="modal-head">
-          <div className="modal-title">
-            {isEditing ? "Edit Bus" : "New Bus"}
-          </div>
+          <div className="modal-title">Edit {bus.id.toUpperCase()}</div>
 
           <button className="modal-close" onClick={onClose}>
             ×
@@ -78,81 +65,43 @@ export default function BusInfoModal({
         </div>
 
         <div className="modal-body">
-          <label className="field-label" htmlFor="busNumber">
-            Bus Number
-          </label>
-
-          <input
-            id="busNumber"
-            className="text-input"
-            placeholder="e.g. BUS-01"
-            value={busNumber}
-            onChange={(e) => setBusNumber(e.target.value)}
-          />
-
-          <label className="field-label" htmlFor="plateNumber">
-            Plate Number
-          </label>
-
-          <input
-            id="plateNumber"
-            className="text-input"
-            placeholder="e.g. ABC 1234"
-            value={plateNumber}
-            onChange={(e) => setPlateNumber(e.target.value)}
-          />
-
           <label className="field-label" htmlFor="driverName">
-            Driver Name
+            Driver name
           </label>
 
           <input
             id="driverName"
             className="text-input"
-            placeholder="e.g. Rosa Santos"
+            placeholder="e.g. Juan Dela Cruz"
             value={driverName}
             onChange={(e) => setDriverName(e.target.value)}
           />
 
-          <label className="field-label" htmlFor="busRoute">
-            Route <span style={{ fontWeight: 400 }}>(optional)</span>
+          <label className="field-label" htmlFor="plateNum">
+            Plate number
           </label>
 
           <input
-            id="busRoute"
+            id="plateNum"
             className="text-input"
-            placeholder="e.g. Olongapo → Iba"
-            value={route}
-            onChange={(e) => setRoute(e.target.value)}
+            placeholder="e.g. ABC123"
+            value={plateNum}
+            onChange={(e) => setPlateNum(e.target.value)}
           />
 
           <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
         </div>
 
         <div className="modal-foot">
-          {isEditing ? (
-            <button
-              className="btn btn-danger-outline"
-              onClick={() => onDelete(busInfo!.id)}
-            >
-              Delete Bus
-            </button>
-          ) : (
-            <span />
-          )}
+          <span />
 
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-            }}
-          >
+          <div style={{ display: "flex", gap: 8 }}>
             <button className="btn btn-ghost" onClick={onClose}>
               Cancel
             </button>
 
             <button className="btn btn-primary" onClick={handleSave}>
-              Save Bus
+              Save
             </button>
           </div>
         </div>

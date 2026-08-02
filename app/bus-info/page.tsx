@@ -7,131 +7,107 @@ import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import BusInfoTable from "@/components/BusInfoTable";
 import BusInfoModal from "@/components/BusInfoModal";
+import AuthGuard from "@/components/AuthGuard";
 
 import { useToast } from "@/components/Toast";
-import { useBusInfo } from "@/lib/useBusInfo";
+import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
 
 export default function BusInfoPage() {
-  const { busInfo, loading, addBusInfo, updateBusInfo, deleteBusInfo, source } =
-    useBusInfo();
-
+  const { buses, loading, source, updateBusInfo } = useRealtimeBuses();
   const { showToast, Toast } = useToast();
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [editingKey, setEditingKey] = useState<{
+    region: string;
+    id: string;
+  } | null>(null);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  const editingBusInfo = editingId
-    ? busInfo.find((b) => b.id === editingId)
+  const editingBus = editingKey
+    ? buses.find(
+        (b) => b.region === editingKey.region && b.id === editingKey.id
+      )
     : null;
 
-  function openNew() {
-    setEditingId(null);
-    setModalOpen(true);
-  }
-
-  function openEdit(id: string) {
-    setEditingId(id);
+  function openEdit(region: string, id: string) {
+    setEditingKey({ region, id });
     setModalOpen(true);
   }
 
   function closeModal() {
     setModalOpen(false);
-    setEditingId(null);
+    setEditingKey(null);
   }
 
-  async function handleSave(values: {
-    busNumber: string;
-    plateNumber: string;
-    driverName: string;
-    route?: string;
-  }) {
-    if (editingId) {
-      await updateBusInfo(editingId, values);
+  async function handleSave(values: { driverName: string; plateNum: string }) {
+    if (!editingKey) return;
 
-      showToast("Bus updated");
-    } else {
-      await addBusInfo(values);
-
-      showToast("Bus added");
-    }
-
+    await updateBusInfo(editingKey.region, editingKey.id, values);
+    showToast("Bus info updated");
     closeModal();
   }
-
-  async function handleDelete(id: string) {
-    const confirmDelete = confirm("Delete this bus? This cannot be undone.");
-
-    if (!confirmDelete) return;
-
-    await deleteBusInfo(id);
-
-    showToast("Bus deleted");
-
-    closeModal();
-  }
-
-  const withRoute = busInfo.filter((b) => Boolean(b.route)).length;
 
   return (
-    <div className="shell">
-      <Sidebar />
+    <AuthGuard>
+      <div className="shell">
+        <Sidebar />
 
-      <div className="main">
-        <Topbar
-          title="Bus Info"
-          subtitle="Bus, plate, and driver registry"
-          source={source === "firebase" ? "firebase" : "mock"}
-        />
+        <div className="main">
+          <Topbar
+            title="Bus Info"
+            subtitle="Driver and vehicle details"
+            source={source === "firebase" ? "firebase" : "mock"}
+          />
 
-        <div className="content">
-          <div className="stat-grid">
-            <StatCard
-              label="Registered buses"
-              value={busInfo.length}
-              foot="in the registry"
-            />
+          <div className="content">
+            <div className="stat-grid">
+              <StatCard
+                label="Active buses"
+                value={buses.length}
+                foot="currently tracked"
+              />
 
-            <StatCard
-              label="With route assigned"
-              value={withRoute}
-              foot="of registered buses"
-            />
-          </div>
+              <StatCard
+                label="In transit"
+                value={
+                  buses.filter((bus) => bus.status === "In Transit").length
+                }
+              />
 
-          <div className="card">
-            <div className="card-head">
-              <div>
-                <div className="section-title">Bus Info</div>
+              <StatCard
+                label="Stopped"
+                value={buses.filter((bus) => bus.status === "Stopped").length}
+              />
 
-                <div className="section-sub">
-                  Bus number, plate number, and assigned driver
+              <StatCard
+                label="Delayed"
+                value={buses.filter((bus) => bus.status === "Delayed").length}
+              />
+            </div>
+
+            <div className="card">
+              <div className="card-head">
+                <div>
+                  <div className="section-title">Bus Info</div>
+                  <div className="section-sub">
+                    Driver name and plate number per bus
+                  </div>
                 </div>
               </div>
 
-              <button className="btn btn-primary" onClick={openNew}>
-                + New Bus
-              </button>
+              <BusInfoTable buses={buses} loading={loading} onEdit={openEdit} />
             </div>
-
-            <BusInfoTable
-              busInfo={busInfo}
-              loading={loading}
-              onEdit={openEdit}
-            />
           </div>
         </div>
       </div>
 
       <BusInfoModal
         open={modalOpen}
-        busInfo={editingBusInfo}
+        bus={editingBus}
         onClose={closeModal}
         onSave={handleSave}
-        onDelete={handleDelete}
       />
 
       <Toast />
-    </div>
+    </AuthGuard>
   );
 }

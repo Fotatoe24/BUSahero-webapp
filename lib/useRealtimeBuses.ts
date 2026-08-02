@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ref, onValue } from "firebase/database";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ref, onValue, update } from "firebase/database";
 import { db, hasFirebaseConfig } from "./firebase";
 
 interface Bus {
@@ -13,6 +13,8 @@ interface Bus {
   speed: number;
   status: "In Transit" | "Stopped" | "Delayed" | string;
   updatedAt: number;
+  driverName?: string;
+  plateNum?: string;
 }
 
 interface BusData {
@@ -22,6 +24,8 @@ interface BusData {
   speed: number;
   status: string;
   updatedAt: number;
+  DriverName?: string;
+  PlateNum?: string;
 }
 
 type BusSource = "firebase" | "mock";
@@ -37,6 +41,8 @@ const MOCK_BUSES: BusRegions = {
       speed: 0,
       status: "Stopped",
       updatedAt: Date.now(),
+      DriverName: "Juan Dela Cruz",
+      PlateNum: "ABC123",
     },
   },
 
@@ -48,6 +54,8 @@ const MOCK_BUSES: BusRegions = {
       speed: 0,
       status: "Stopped",
       updatedAt: Date.now(),
+      DriverName: "Maria Santos",
+      PlateNum: "XYZ789",
     },
   },
 };
@@ -57,15 +65,18 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
 
   Object.entries(busesByRegion ?? {}).forEach(([region, busesInRegion]) => {
     Object.entries(busesInRegion ?? {}).forEach(([busId, data]) => {
-      const lat = Number(data?.latitude);
-      const lng = Number(data?.longitude);
-
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-        console.warn(`Skipping bus ${busId}: invalid coordinates`, data);
-        return;
-      }
-
-      out.push({ id: busId, region, ...data, latitude: lat, longitude: lng });
+      out.push({
+        id: busId,
+        region,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        satellites: data.satellites,
+        speed: data.speed,
+        status: data.status,
+        updatedAt: data.updatedAt,
+        driverName: data.DriverName ?? "",
+        plateNum: data.PlateNum ?? "",
+      });
     });
   });
 
@@ -74,9 +85,7 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
 
 export function useRealtimeBuses() {
   const [buses, setBuses] = useState<Bus[]>([]);
-
   const [loading, setLoading] = useState<boolean>(true);
-
   const [source, setSource] = useState<BusSource>(
     hasFirebaseConfig ? "firebase" : "mock"
   );
@@ -86,7 +95,6 @@ export function useRealtimeBuses() {
   useEffect(() => {
     if (!hasFirebaseConfig) {
       setBuses(flatten(mockState.current));
-
       setLoading(false);
 
       const interval = setInterval(() => {
@@ -95,17 +103,14 @@ export function useRealtimeBuses() {
             const moving = Math.random() > 0.35;
 
             bus.speed = moving ? Math.round(20 + Math.random() * 40) : 0;
-
             bus.status = moving ? "In Transit" : "Stopped";
 
             if (moving) {
               bus.latitude += (Math.random() - 0.5) * 0.002;
-
               bus.longitude += (Math.random() - 0.5) * 0.002;
             }
 
             bus.satellites = 5 + Math.floor(Math.random() * 5);
-
             bus.updatedAt = Date.now();
           });
         });
@@ -115,21 +120,18 @@ export function useRealtimeBuses() {
 
       return () => clearInterval(interval);
     }
+
     if (!db) return;
 
     const busesRef = ref(db, "buses");
 
     const unsubscribe = onValue(
       busesRef,
-
       (snapshot) => {
         setBuses(flatten(snapshot.val()));
-
         setSource("firebase");
-
         setLoading(false);
       },
-
       (error) => {
         console.error(
           "Firebase read failed, falling back to simulated data:",
@@ -137,9 +139,7 @@ export function useRealtimeBuses() {
         );
 
         setSource("mock");
-
         setBuses(flatten(mockState.current));
-
         setLoading(false);
       }
     );
@@ -147,9 +147,37 @@ export function useRealtimeBuses() {
     return () => unsubscribe();
   }, []);
 
+  const updateBusInfo = useCallback(
+    async (
+      region: string,
+      busId: string,
+      values: { driverName: string; plateNum: string }
+    ) => {
+      const payload = {
+        DriverName: values.driverName,
+        PlateNum: values.plateNum,
+      };
+
+      if (hasFirebaseConfig && db) {
+        await update(ref(db, `buses/${region}/${busId}`), payload);
+      } else {
+        const bus = mockState.current[region]?.[busId];
+
+        if (bus) {
+          bus.DriverName = values.driverName;
+          bus.PlateNum = values.plateNum;
+        }
+
+        setBuses(flatten(mockState.current));
+      }
+    },
+    []
+  );
+
   return {
     buses,
     loading,
     source,
+    updateBusInfo,
   };
 }
