@@ -38,7 +38,11 @@ export default function BusInfoPage() {
     setEditingKey(null);
   }
 
-  async function handleSave(values: { driverName: string; plateNum: string }) {
+  async function handleSave(values: {
+    driverName: string;
+    plateNum: string;
+    busName: string;
+  }) {
     if (!editingKey) return;
 
     await updateBusInfo(editingKey.region, editingKey.id, values);
