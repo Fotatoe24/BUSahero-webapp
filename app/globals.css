@@ -701,20 +701,6 @@ tbody tr:last-child td {
   }
 }
 
-@media (max-width: 720px) {
-  .shell {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    display: none;
-  }
-
-  .stat-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 
 /* ---------- Realtime Map ---------- */
 
