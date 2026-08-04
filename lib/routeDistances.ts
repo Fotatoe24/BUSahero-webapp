@@ -32,47 +32,52 @@ export interface RouteStop {
 export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
   {
     id: "olongapo",
-    name: "Olongapo (Terminal Blue / Gapo)",
+    name: "Olongapo (Terminal)",
     municipality: "Olongapo",
     legKm: 0,
   },
   {
     id: "subic",
-    name: "Subic (Jabe Subic)",
+    name: "Subic (Municipal Hall)",
     municipality: "Subic",
     legKm: 11.6,
   },
   {
     id: "castillejos",
-    name: "Castillejos (Bayan)",
+    name: "Castillejos (Municipal Hall)",
     municipality: "Castillejos",
     legKm: 8.4,
   },
   {
     id: "san-marcelino",
-    name: "San Marcelino",
+    name: "San Marcelino (Municipal Hall)",
     municipality: "San Marcelino",
     legKm: 6.8,
   },
   {
     id: "san-antonio",
-    name: "San Antonio",
+    name: "San Antonio (Municipal Hall)",
     municipality: "San Antonio",
     legKm: 7.8,
   },
   {
     id: "san-narciso",
-    name: "San Narciso",
+    name: "San Narciso (Municipal Hall)",
     municipality: "San Narciso",
     legKm: 7.8,
   },
   {
     id: "san-felipe",
-    name: "San Felipe",
+    name: "San Felipe (Municipal Hall)",
     municipality: "San Felipe",
     legKm: 5.0,
   },
-  { id: "cabangan", name: "Cabangan", municipality: "Cabangan", legKm: 11.4 },
+  {
+    id: "cabangan",
+    name: "Cabangan (Municipal Hall)",
+    municipality: "Cabangan",
+    legKm: 11.4,
+  },
   {
     id: "botolan",
     name: "Botolan (Agora)",
@@ -82,14 +87,19 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
   { id: "iba", name: "Iba (Terminal)", municipality: "Iba", legKm: 5.7 },
   {
     id: "palauig",
-    name: "Palauig (Bulawen, substitute stop)",
+    name: "Palauig (Bulawen)",
     municipality: "Palauig",
     legKm: 16.6,
   },
-  { id: "masinloc", name: "Masinloc", municipality: "Masinloc", legKm: 16.8 },
+  {
+    id: "masinloc",
+    name: "Masinloc (Municipal Hall)",
+    municipality: "Masinloc",
+    legKm: 16.8,
+  },
   {
     id: "candelaria",
-    name: "Candelaria",
+    name: "Candelaria (Municipal Hall)",
     municipality: "Candelaria",
     legKm: 11.2,
   },
@@ -161,7 +171,7 @@ export interface TownRoute {
  */
 export const TOWN_ROUTES: TownRoute[] = ZAMBALES_CORRIDOR.map((stop) => ({
   id: stop.id,
-  town: stop.municipality,
+  town: stop.name,
 }));
 
 /**
