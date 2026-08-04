@@ -1549,7 +1549,6 @@ tbody tr:last-child td {
   color: var(--blue-600);
 }
 
-/* About page: team grid */
 .team-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
