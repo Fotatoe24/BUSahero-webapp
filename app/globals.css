@@ -1395,3 +1395,251 @@ tbody tr:last-child td {
     font-size: 12.5px;
   }
 }
+
+/* ============================================================
+   Info pages (About / Mission / Vision / Terms / Privacy Policy)
+   Uses the same design tokens as the rest of the app — no Tailwind.
+   Append this block to the end of app/globals.css.
+   ============================================================ */
+
+.info-heading {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: var(--ink-900);
+  border-bottom: 2px solid var(--blue-600);
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+}
+
+.info-subheading {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: var(--ink-900);
+  margin: 26px 0 14px;
+}
+
+.info-subheading.underline {
+  border-bottom: 2px solid var(--blue-600);
+  padding-bottom: 10px;
+}
+
+.info-hero {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 22px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+}
+
+.info-hero-illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--blue-100), #eef3ff);
+  font-size: 56px;
+}
+
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--blue-100);
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.icon-badge.lg {
+  width: 56px;
+  height: 56px;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.info-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--blue-600);
+  margin-bottom: 6px;
+}
+
+.info-card-body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-500);
+}
+
+/* Goal / practice / clause card grids (Mission, Vision, Terms, Privacy) */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .info-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .info-grid.cols-5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.info-tile {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+}
+
+.info-tile-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-bottom: 6px;
+}
+
+.info-tile-title.pr {
+  padding-right: 26px;
+}
+
+.info-tile-body {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-500);
+}
+
+.info-tile-index {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--blue-600);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-footnote {
+  margin-top: 22px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-600);
+}
+
+/* About page: team grid */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .team-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .team-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.team-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+  text-align: center;
+}
+
+.team-avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+  background: var(--blue-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+
+.team-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-name {
+  margin-top: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.team-role {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--ink-500);
+}
+
+.info-fact-grid {
+  display: grid;
+  gap: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 22px;
+}
+
+@media (min-width: 640px) {
+  .info-fact-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.info-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.info-fact-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.info-fact-body {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-500);
+}

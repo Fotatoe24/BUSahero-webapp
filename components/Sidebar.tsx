@@ -18,6 +18,14 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/bus-info", label: "Bus Info" },
 ];
 
+const INFO_NAV_ITEMS: NavItem[] = [
+  { href: "/mission", label: "Mission" },
+  { href: "/vision", label: "Vision" },
+  { href: "/about", label: "About Us" },
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms & Conditions" },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -73,6 +81,21 @@ export default function Sidebar() {
 
         <nav className="nav">
           {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`nav-item ${pathname === item.href ? "active" : ""}`}
+              onClick={() => setOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="nav-group-label">About BUSahero</div>
+
+        <nav className="nav">
+          {INFO_NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
