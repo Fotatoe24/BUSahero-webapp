@@ -78,10 +78,10 @@ export default function AboutPage() {
 
               <div className="info-hero-illustration" aria-hidden="true">
                 <Image
-                  src="/public/busahero-illustration"
+                  src="/busahero-illustration.png"
                   alt="Bus Illustration"
-                  width={84}
-                  height={84}
+                  width={200}
+                  height={200}
                 />
               </div>
             </div>
