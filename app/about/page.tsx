@@ -79,10 +79,9 @@ export default function AboutPage() {
               <div className="info-hero-illustration" aria-hidden="true">
                 <Image
                   src="/busahero-illustration.png"
-                  alt="BUSahero bus illustration"
-                  fill
-                  className="object-contain"
-                  sizes="(min-width: 768px) 50vw, 100vw"
+                  alt="Bus Illustration"
+                  width={400}
+                  height={240}
                 />
               </div>
             </div>
