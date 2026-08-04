@@ -4,46 +4,46 @@ import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import AuthGuard from "@/components/AuthGuard";
 
-interface Practice {
+interface Clause {
   icon: string;
   title: string;
   body: string;
 }
 
-const practices: Practice[] = [
+const clauses: Clause[] = [
   {
-    icon: "🗺️",
-    title: "Location Information",
-    body: "The application may access your device's location to display your current position on the map and provide navigation-related services. Your location is used only while the application is running.",
+    icon: "📱",
+    title: "Use of the Application",
+    body: "BUSahero is intended to provide commuters with real-time bus tracking, estimated arrival times, seat availability, and fare computation. Users agree to use the application only for lawful and personal transportation purposes.",
   },
   {
-    icon: "🚌",
-    title: "Real-Time Bus Tracking",
-    body: "BUSahero displays the real-time location of buses using GPS data transmitted by the bus tracking device. This information is intended solely to help commuters monitor bus movements.",
+    icon: "⏱️",
+    title: "Arrival Time Estimates",
+    body: "Estimated arrival times (ETA) are calculated using GPS location and distance data. Actual arrival times may vary due to traffic conditions, road closures, weather, driver decisions, or network interruptions.",
   },
   {
-    icon: "🖥️",
-    title: "Data Collection",
-    body: "The application may store limited information such as user preferences, trip history, and system settings to improve the overall user experience.",
+    icon: "📍",
+    title: "GPS Accuracy",
+    body: "Bus location updates depend on GPS signals and internet connectivity. Temporary inaccuracies or delays in location updates may occur.",
   },
   {
-    icon: "🛡️",
-    title: "Data Protection",
-    body: "Reasonable security measures are implemented to protect stored information from unauthorized access, misuse, or disclosure.",
+    icon: "⚠️",
+    title: "Limitation of Liability",
+    body: "The developers are not responsible for any inconvenience, delays, missed trips, or losses resulting from inaccurate GPS data, ETA estimates, or temporary service interruptions.",
   },
   {
-    icon: "🔗",
-    title: "Information Sharing",
-    body: "BUSahero does not sell, rent, or intentionally share users' personal information with third parties unless required by law or with the user's consent.",
+    icon: "✅",
+    title: "User Responsibility",
+    body: "Users are responsible for using the application appropriately and should not misuse, modify, attempt unauthorized access, or interfere with the application's operation.",
   },
   {
     icon: "🔄",
-    title: "Policy Updates",
-    body: "This Privacy Policy may be updated periodically to reflect improvements or changes in the application. Continued use of the application indicates acceptance of the updated policy.",
+    title: "Changes to the Terms",
+    body: "These Terms and Conditions may be updated as the application is improved. Continued use of BUSahero after updates indicates acceptance of the revised terms.",
   },
 ];
 
-export default function PrivacyPolicyPage() {
+export default function TermsPage() {
   return (
     <AuthGuard>
       <div className="shell">
@@ -51,13 +51,13 @@ export default function PrivacyPolicyPage() {
 
         <div className="main">
           <Topbar
-            title="Privacy Policy"
-            subtitle="Privacy Policy"
+            title="Terms & Conditions"
+            subtitle="Terms & Conditions"
             source="mock"
           />
 
           <div className="content">
-            <div className="info-heading">Privacy Policy</div>
+            <div className="info-heading">Terms & Conditions</div>
 
             <div
               className="card"
@@ -70,30 +70,29 @@ export default function PrivacyPolicyPage() {
                 alignItems: "flex-start",
               }}
             >
-              <span className="icon-badge lg">🔒</span>
+              <span className="icon-badge lg">📄</span>
               <div>
-                <div className="info-card-title">Introduction</div>
+                <div className="info-card-title">Acceptance of Terms</div>
                 <p className="info-card-body">
-                  BUSahero respects your privacy. This Privacy Policy explains
-                  how the application collects, uses, and protects your
-                  information while providing real-time bus tracking and related
-                  transportation services.
+                  By using the BUSahero application, you agree to comply with
+                  these Terms and Conditions. If you do not agree with any part
+                  of these terms, please discontinue use of the application.
                 </p>
               </div>
             </div>
 
-            <div className="info-subheading">Our Privacy Practices</div>
             <div className="info-grid">
-              {practices.map((p) => (
-                <div className="info-tile" key={p.title}>
-                  <span className="icon-badge">{p.icon}</span>
-                  <div className="info-tile-title">{p.title}</div>
-                  <div className="info-tile-body">{p.body}</div>
+              {clauses.map((c, i) => (
+                <div className="info-tile" key={c.title}>
+                  <span className="info-tile-index">{i + 1}</span>
+                  <span className="icon-badge">{c.icon}</span>
+                  <div className="info-tile-title pr">{c.title}</div>
+                  <div className="info-tile-body">{c.body}</div>
                 </div>
               ))}
             </div>
 
-            <div className="info-footnote">Last Updated: July 2026</div>
+            <div className="info-footnote">Effective Date: July 2026</div>
           </div>
         </div>
       </div>
