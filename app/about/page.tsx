@@ -13,23 +13,28 @@ interface Developer {
 
 const developers: Developer[] = [
   {
+    name: "Louis Phillip Falaminiano",
+    role: "Web developer, UX/UI, Database Administrator, and System Analyst",
+    photo: "/team/phillip.png",
+  },
+  {
     name: "Angelica Aquino",
-    role: "Web Developer",
+    role: "Financial manager",
     photo: "/team/angelica.png",
   },
   {
     name: "Krizia Mae F. Funiestas",
-    role: "Lead Developer",
+    role: "Mobile App Developer, system tester",
     photo: "/team/krizia.png",
   },
   {
     name: "Daisy Ann M. Magno",
-    role: "Documentation",
+    role: "Masters in pancit canton cooking, Bank 🤑",
     photo: "/team/daisy_ann.png",
   },
   {
     name: "Rhonielyn Mhei B. Tolentino",
-    role: "System Analyst",
+    role: "System alis/ always missing youu!!!!",
     photo: "/team/rhonielyn.png",
   },
 ];
