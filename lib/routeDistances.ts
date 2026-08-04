@@ -1,57 +1,178 @@
-// lib/routeDistances.ts
-//
-// Single source of truth for town positions along the Olongapo -> Sta. Cruz
-// coastal corridor. Each town's distanceKm is its distance FROM OLONGAPO
-// along that corridor -- since all these towns sit on the same route, the
-// distance between any two towns is just the difference between their two
-// positions (see getDistanceBetween below).
-//
-// To add a new town, add a row with its distance from Olongapo. It will
-// automatically show up in both the "From" and "To" dropdowns, and
-// From/To distance math works for it immediately -- no other code changes.
+/**
+ * Zambales Corridor — per-municipality bus-stop distances.
+ *
+ * Source: "per municipality bus stop" dataset (Zambales_Route_Distances.docx).
+ * Palauig's town proper is not on the route, so Bulawen is used as its
+ * substitute stop (per the source doc's note).
+ *
+ * This is deliberately NOT the full 86-stop barangay chain (149.69 km) —
+ * that dataset is a road-length survey used to sanity-check the corridor
+ * total, not a fare-relevant stop list. This file uses named,
+ * boarding-relevant terminals/landmarks, which is what riders actually
+ * board/alight at and what a fare matrix should be built on.
+ *
+ * Corridor total: 144.4 km (Olongapo -> Santa Cruz).
+ */
+
+export interface RouteStop {
+  /** Stable identifier, used to reference a stop from fare/bus data. */
+  id: string;
+  /** Display name for the stop/terminal. */
+  name: string;
+  /** Municipality this stop belongs to. */
+  municipality: string;
+  /** Distance in km from the previous stop in the corridor. */
+  legKm: number;
+  /** Cumulative distance in km from the Olongapo origin. */
+  cumulativeKm: number;
+}
+
+// Ordered Olongapo -> Santa Cruz. Do not reorder without recalculating
+// cumulativeKm for every stop after the change.
+export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
+  {
+    id: "olongapo",
+    name: "Olongapo (Terminal Blue / Gapo)",
+    municipality: "Olongapo",
+    legKm: 0,
+  },
+  {
+    id: "subic",
+    name: "Subic (Jabe Subic)",
+    municipality: "Subic",
+    legKm: 11.6,
+  },
+  {
+    id: "castillejos",
+    name: "Castillejos (Bayan)",
+    municipality: "Castillejos",
+    legKm: 8.4,
+  },
+  {
+    id: "san-marcelino",
+    name: "San Marcelino",
+    municipality: "San Marcelino",
+    legKm: 6.8,
+  },
+  {
+    id: "san-antonio",
+    name: "San Antonio",
+    municipality: "San Antonio",
+    legKm: 7.8,
+  },
+  {
+    id: "san-narciso",
+    name: "San Narciso",
+    municipality: "San Narciso",
+    legKm: 7.8,
+  },
+  {
+    id: "san-felipe",
+    name: "San Felipe",
+    municipality: "San Felipe",
+    legKm: 5.0,
+  },
+  { id: "cabangan", name: "Cabangan", municipality: "Cabangan", legKm: 11.4 },
+  {
+    id: "botolan",
+    name: "Botolan (Agora)",
+    municipality: "Botolan",
+    legKm: 17.7,
+  },
+  { id: "iba", name: "Iba (Terminal)", municipality: "Iba", legKm: 5.7 },
+  {
+    id: "palauig",
+    name: "Palauig (Bulawen, substitute stop)",
+    municipality: "Palauig",
+    legKm: 16.6,
+  },
+  { id: "masinloc", name: "Masinloc", municipality: "Masinloc", legKm: 16.8 },
+  {
+    id: "candelaria",
+    name: "Candelaria",
+    municipality: "Candelaria",
+    legKm: 11.2,
+  },
+  {
+    id: "santa-cruz",
+    name: "Santa Cruz (Municipal Hall)",
+    municipality: "Santa Cruz",
+    legKm: 17.6,
+  },
+]);
+
+function buildCorridor(
+  stops: Array<Omit<RouteStop, "cumulativeKm">>
+): RouteStop[] {
+  let cumulative = 0;
+
+  return stops.map((stop) => {
+    cumulative += stop.legKm;
+
+    return { ...stop, cumulativeKm: Number(cumulative.toFixed(2)) };
+  });
+}
+
+export function getStopById(id: string): RouteStop | undefined {
+  return ZAMBALES_CORRIDOR.find((stop) => stop.id === id);
+}
+
+export function getStopByMunicipality(
+  municipality: string
+): RouteStop | undefined {
+  return ZAMBALES_CORRIDOR.find(
+    (stop) => stop.municipality.toLowerCase() === municipality.toLowerCase()
+  );
+}
+
+/**
+ * Distance in km between two stops on the corridor, regardless of travel
+ * direction. Throws if either stop id is unknown.
+ */
+export function distanceBetweenStops(fromId: string, toId: string): number {
+  const from = getStopById(fromId);
+  const to = getStopById(toId);
+
+  if (!from || !to) {
+    throw new Error(
+      `distanceBetweenStops: unknown stop id "${!from ? fromId : toId}"`
+    );
+  }
+
+  return Number(Math.abs(to.cumulativeKm - from.cumulativeKm).toFixed(2));
+}
+
+export const CORRIDOR_TOTAL_KM =
+  ZAMBALES_CORRIDOR[ZAMBALES_CORRIDOR.length - 1].cumulativeKm;
+
+// ---------------------------------------------------------------------
+// Town-route selector helpers (used by FareCalculator.tsx)
+// ---------------------------------------------------------------------
 
 export interface TownRoute {
-  id: string; // stable slug, used as <option> key/value
+  id: string;
   town: string;
-  distanceKm: number; // distance from Olongapo along the corridor
 }
 
-export const TOWN_ROUTES: TownRoute[] = [
-  { id: "olongapo", town: "Olongapo", distanceKm: 0 },
-  { id: "subic", town: "Subic", distanceKm: 12.0 },
-  { id: "castillejos", town: "Castillejos", distanceKm: 20.8 },
-  { id: "san-marcelino", town: "San Marcelino", distanceKm: 27.5 },
-  { id: "san-antonio", town: "San Antonio", distanceKm: 35.4 },
-  { id: "san-narciso", town: "San Narciso", distanceKm: 42.7 },
-  { id: "san-felipe", town: "San Felipe", distanceKm: 47.7 },
-  { id: "cabangan", town: "Cabangan", distanceKm: 59.1 },
-  { id: "botolan", town: "Botolan", distanceKm: 77.2 },
-  { id: "iba", town: "Iba", distanceKm: 82.5 },
-  { id: "sta-cruz", town: "Sta. Cruz", distanceKm: 141.0 },
+/**
+ * Simplified one-entry-per-municipality list for "From / To" selectors.
+ * Derived from ZAMBALES_CORRIDOR so it can never drift out of sync with
+ * the underlying distance data.
+ */
+export const TOWN_ROUTES: TownRoute[] = ZAMBALES_CORRIDOR.map((stop) => ({
+  id: stop.id,
+  town: stop.municipality,
+}));
 
-  // Not yet measured -- fill in distanceKm when you have it, uncomment,
-  // and it'll appear in both dropdowns automatically:
-  // { id: "candelaria", town: "Candelaria", distanceKm: 0 },
-  // { id: "masinloc", town: "Masinloc", distanceKm: 0 },
-  // { id: "palauig", town: "Palauig", distanceKm: 0 },
-];
-
-export function findTownRoute(id: string): TownRoute | undefined {
-  return TOWN_ROUTES.find((r) => r.id === id);
+/**
+ * Distance in km between two stop ids. Alias of distanceBetweenStops,
+ * named to match the town-route selector call sites.
+ */
+export function getDistanceBetween(fromId: string, toId: string): number {
+  return distanceBetweenStops(fromId, toId);
 }
 
+/** Human-readable "From → To" label for a route between two town names. */
 export function getRouteLabel(fromTown: string, toTown: string): string {
   return `${fromTown} → ${toTown}`;
-}
-
-// Distance between any two towns on the corridor = the absolute difference
-// between their distances-from-Olongapo. Works for any pair, in either
-// direction, including pairs that don't involve Olongapo at all.
-export function getDistanceBetween(fromId: string, toId: string): number {
-  const from = findTownRoute(fromId);
-  const to = findTownRoute(toId);
-
-  if (!from || !to) return 0;
-
-  return Math.round(Math.abs(to.distanceKm - from.distanceKm) * 10) / 10;
 }
