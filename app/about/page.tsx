@@ -19,7 +19,7 @@ const developers: Developer[] = [
   },
   {
     name: "Angelica Aquino",
-    role: "Financial manager",
+    role: "Financial manager, Web developer, system tester, Hardware developer",
     photo: "/team/angelica.png",
   },
   {
