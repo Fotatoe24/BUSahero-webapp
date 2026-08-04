@@ -1578,8 +1578,8 @@ tbody tr:last-child td {
 }
 
 .team-avatar {
-  width: 84px;
-  height: 84px;
+  width: 128px;
+  height: 128px;
   border-radius: 50%;
   overflow: hidden;
   margin: 0 auto;

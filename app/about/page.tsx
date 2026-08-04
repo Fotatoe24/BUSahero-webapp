@@ -49,7 +49,7 @@ function TeamCard({ dev }: { dev: Developer }) {
   return (
     <div className="team-card">
       <div className="team-avatar">
-        <Image src={dev.photo} alt={dev.name} width={84} height={84} />
+        <Image src={dev.photo} alt={dev.name} width={128} height={128} />
       </div>
       <div className="team-name">{dev.name}</div>
       <div className="team-role">{dev.role}</div>
