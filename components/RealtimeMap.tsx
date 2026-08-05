@@ -4,8 +4,11 @@ import { useEffect, useRef } from "react";
 import maplibregl, { Map as MapLibreMap, Marker } from "maplibre-gl";
 
 import { Bus } from "@/types/bus";
+import { olongapoToSantaCruzRoute } from "@/lib/routes";
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+const ROUTE_SOURCE_ID = "corridor-route";
+const ROUTE_LAYER_ID = "corridor-route-line";
 
 interface RealtimeMapProps {
   buses: Bus[];
@@ -20,20 +23,63 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current || !MAPTILER_KEY) return;
 
-    mapRef.current = new maplibregl.Map({
+    const map = new maplibregl.Map({
       container: containerRef.current,
       style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`,
-      center: [120.05, 15.05], // Zambales area, matches the old mock positioning
+      center: [120.05, 15.05],
       zoom: 10,
     });
 
-    mapRef.current.addControl(
-      new maplibregl.NavigationControl(),
-      "bottom-right"
-    );
+    mapRef.current = map;
+
+    map.addControl(new maplibregl.NavigationControl(), "bottom-right");
+
+    function addRouteLayer() {
+      if (map.getSource(ROUTE_SOURCE_ID)) return; // avoid dupes on style reloads
+
+      map.addSource(ROUTE_SOURCE_ID, {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: olongapoToSantaCruzRoute,
+          },
+        },
+      });
+
+      map.addLayer({
+        id: ROUTE_LAYER_ID,
+        type: "line",
+        source: ROUTE_SOURCE_ID,
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#2e5cf0",
+          "line-width": 4,
+          "line-opacity": 0.85,
+        },
+      });
+    }
+
+    if (map.isStyleLoaded()) {
+      addRouteLayer();
+    } else {
+      map.on("load", addRouteLayer);
+    }
+
+    // MapTiler style swaps can drop custom sources/layers — re-add if that happens
+    map.on("styledata", () => {
+      if (map.isStyleLoaded() && !map.getSource(ROUTE_SOURCE_ID)) {
+        addRouteLayer();
+      }
+    });
 
     return () => {
-      mapRef.current?.remove();
+      map.remove();
       mapRef.current = null;
     };
   }, []);
@@ -48,7 +94,7 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
     buses.forEach((bus) => {
       if (!Number.isFinite(bus.latitude) || !Number.isFinite(bus.longitude)) {
         console.warn(`Skipping bus ${bus.id}: invalid coordinates`, bus);
-        return; // skip this bus, continue with the rest
+        return;
       }
       seen.add(bus.id);
 
@@ -72,7 +118,6 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
       }
     });
 
-    // Drop markers for buses that dropped off the feed
     Object.keys(markersRef.current).forEach((id) => {
       if (!seen.has(id)) {
         markersRef.current[id].remove();
