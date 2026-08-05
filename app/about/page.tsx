@@ -13,6 +13,11 @@ interface Developer {
 
 const developers: Developer[] = [
   {
+    name: "Louis Phillip P. Falaminiano",
+    role: "Full Stack Developer, UI/UX Designer, Joshua Garcia ng Zamables, Batak mag code, kahit di ka group tinutulugan",
+    photo: "/team/phillip.png",
+  },
+  {
     name: "Angelica Aquino",
     role: "Full Stack Developer, UI/UX Designer, Hardware integration",
     photo: "/team/angelica.png",
