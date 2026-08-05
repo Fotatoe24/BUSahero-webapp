@@ -13,46 +13,46 @@ interface Developer {
 
 const developers: Developer[] = [
   {
-    name: "Louis Phillip Falaminiano",
-    role: "Web developer, UX/UI, Database Administrator, and System Analyst",
-    photo: "/team/phillip.png",
-  },
-  {
     name: "Angelica Aquino",
-    role: "Financial manager, Web developer, system tester, Hardware developer",
-    photo: "/team/angelica.png",
+    role: "Web Developer",
+    photo: "/team/angelica.jpg",
   },
   {
     name: "Krizia Mae F. Funiestas",
-    role: "Mobile App Developer, system tester",
-    photo: "/team/krizia.png",
+    role: "Lead Developer",
+    photo: "/team/krizia.jpg",
   },
   {
     name: "Daisy Ann M. Magno",
-    role: "Masters in pancit canton cooking, Bank 🤑",
-    photo: "/team/daisy_ann.png",
+    role: "Documentation",
+    photo: "/team/daisy_ann.jpg",
   },
   {
     name: "Rhonielyn Mhei B. Tolentino",
-    role: "System alis/ always missing youu!!!!",
-    photo: "/team/rhonielyn.png",
+    role: "System Analyst",
+    photo: "/team/rhonielyn.jpg",
   },
 ];
 
 const adviser: Developer = {
   name: "Rowela Gongora, MCS",
   role: "Thesis Adviser",
-  photo: "/team/rowela.png",
+  photo: "/team/rowela.jpg",
 };
 
-function TeamCard({ dev }: { dev: Developer }) {
+function TeamCard({ dev, index }: { dev: Developer; index: number }) {
   return (
     <div className="team-card">
-      <div className="team-avatar">
-        <Image src={dev.photo} alt={dev.name} width={128} height={128} />
+      <span className="team-card-index">{String(index).padStart(2, "0")}</span>
+
+      <div className="team-photo-wrap">
+        <Image src={dev.photo} alt={dev.name} width={240} height={320} />
       </div>
-      <div className="team-name">{dev.name}</div>
-      <div className="team-role">{dev.role}</div>
+
+      <div className="team-card-info">
+        <div className="team-name">{dev.name}</div>
+        <div className="team-role">{dev.role}</div>
+      </div>
     </div>
   );
 }
@@ -82,25 +82,20 @@ export default function AboutPage() {
               </div>
 
               <div className="info-hero-illustration" aria-hidden="true">
-                <Image
-                  src="/busahero-illustration.png"
-                  alt="Bus Illustration"
-                  width={400}
-                  height={240}
-                />
+                🚌
               </div>
             </div>
 
             <div className="info-subheading">Meet the Developers</div>
             <div className="team-grid">
-              {developers.map((dev) => (
-                <TeamCard key={dev.name} dev={dev} />
+              {developers.map((dev, i) => (
+                <TeamCard key={dev.name} dev={dev} index={i + 1} />
               ))}
             </div>
 
             <div className="info-subheading">Thesis Adviser</div>
             <div className="team-grid">
-              <TeamCard dev={adviser} />
+              <TeamCard dev={adviser} index={1} />
             </div>
 
             <div className="info-subheading">Academic Information</div>
