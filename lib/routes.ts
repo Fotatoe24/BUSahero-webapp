@@ -1,4 +1,4 @@
-export const olongapoToSantaCruzRoute: [number, number][] = [
+export const olongapoToSantaCruzRouteLatLng: [number, number][] = [
   [14.838944, 120.283383],
   [14.839085, 120.283555],
   [14.839267, 120.282898],
@@ -1966,3 +1966,7 @@ export const olongapoToSantaCruzRoute: [number, number][] = [
   [15.77284, 119.905472],
   [15.773044, 119.905389],
 ];
+
+// GeoJSON/maplibre-gl requires [lng, lat] — flip once here
+export const olongapoToSantaCruzRoute: [number, number][] =
+  olongapoToSantaCruzRouteLatLng.map(([lat, lng]) => [lng, lat]);
