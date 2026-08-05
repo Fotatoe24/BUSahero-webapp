@@ -15,29 +15,29 @@ const developers: Developer[] = [
   {
     name: "Angelica Aquino",
     role: "Web Developer",
-    photo: "/team/angelica.jpg",
+    photo: "/team/angelica.png",
   },
   {
     name: "Krizia Mae F. Funiestas",
     role: "Lead Developer",
-    photo: "/team/krizia.jpg",
+    photo: "/team/krizia.png",
   },
   {
     name: "Daisy Ann M. Magno",
     role: "Documentation",
-    photo: "/team/daisy_ann.jpg",
+    photo: "/team/daisy_ann.png",
   },
   {
     name: "Rhonielyn Mhei B. Tolentino",
     role: "System Analyst",
-    photo: "/team/rhonielyn.jpg",
+    photo: "/team/rhonielyn.png",
   },
 ];
 
 const adviser: Developer = {
   name: "Rowela Gongora, MCS",
   role: "Thesis Adviser",
-  photo: "/team/rowela.jpg",
+  photo: "/team/rowela.png",
 };
 
 function TeamCard({ dev, index }: { dev: Developer; index: number }) {
