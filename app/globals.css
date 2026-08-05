@@ -1036,21 +1036,6 @@ tbody tr:last-child td {
   margin-bottom: 22px;
 }
 
-.login-logo .brand-mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  background: linear-gradient(135deg, var(--blue-500), var(--route-green));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 18px;
-  color: #06371f;
-  flex-shrink: 0;
-}
-
 .login-logo .brand-name {
   font-family: var(--font-display);
   font-weight: 800;
