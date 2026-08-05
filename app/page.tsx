@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@/lib/useAuth";
 
 interface MapTile {
   id: string;
@@ -75,7 +77,6 @@ const MAP_TILES: MapTile[] = [
     roadAngle: 12,
     tone: "green",
   },
-
   {
     id: "t6",
     label: "STA. CRUZ",
@@ -120,7 +121,6 @@ const MAP_TILES: MapTile[] = [
     roadAngle: 28,
     tone: "amber",
   },
-
   {
     id: "t10",
     label: "SAN FELIPE",
@@ -168,6 +168,7 @@ const MAP_TILES: MapTile[] = [
 ];
 
 export default function LoginPage() {
+  const { operator, loading, signIn } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState<string>("");
@@ -175,7 +176,17 @@ export default function LoginPage() {
   const [error, setError] = useState<string>("");
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  function handleLogin(e: React.FormEvent) {
+  useEffect(() => {
+    if (!loading && operator) {
+      router.replace("/dashboard");
+    }
+  }, [loading, operator, router]);
+
+  if (loading || operator) {
+    return null;
+  }
+
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
 
     if (!email.trim() || !password) {
@@ -186,12 +197,16 @@ export default function LoginPage() {
     setError("");
     setSubmitting(true);
 
-    // TODO: wire this up to real auth (Firebase Auth, etc).
-    // Faking a short delay so the button state reads naturally.
-    setTimeout(() => {
-      setSubmitting(false);
-      router.push("/");
-    }, 400);
+    const { error } = await signIn(email.trim(), password);
+
+    setSubmitting(false);
+
+    if (error) {
+      setError(error);
+      return;
+    }
+
+    router.push("/dashboard");
   }
 
   return (
@@ -292,12 +307,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <a className="login-forgot" href="/forgot-password">
+        <Link className="login-forgot" href="/forgot-password">
           Forgot password?
-        </a>
+        </Link>
 
         <p className="login-signup">
-          Don&apos;t have an account? <a href="/register">Sign up</a>
+          Don&apos;t have an account? <Link href="/register">Sign up</Link>
         </p>
       </div>
     </div>
