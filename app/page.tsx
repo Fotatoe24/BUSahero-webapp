@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { useAuth } from "@/lib/useAuth";
 
 interface MapTile {
   id: string;
@@ -170,39 +167,30 @@ const MAP_TILES: MapTile[] = [
 ];
 
 export default function LoginPage() {
-  const { operator, loading, signIn } = useAuth();
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!loading && operator) {
-      router.replace("/dashboard");
-    }
-  }, [loading, operator, router]);
-
-  if (loading || operator) {
-    return null;
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+  function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
-    setError("");
 
-    const { error } = await signIn(email, password);
-
-    setSubmitting(false);
-
-    if (error) {
-      setError(error);
+    if (!email.trim() || !password) {
+      setError("Enter your email/username and password.");
       return;
     }
 
-    router.push("/dashboard");
+    setError("");
+    setSubmitting(true);
+
+    // TODO: wire this up to real auth (Firebase Auth, etc).
+    // Faking a short delay so the button state reads naturally.
+    setTimeout(() => {
+      setSubmitting(false);
+      router.push("/");
+    }, 400);
   }
 
   return (
@@ -238,20 +226,12 @@ export default function LoginPage() {
         <div className="login-bg-overlay" />
       </div>
 
-      <form className="login-card" onSubmit={handleSubmit} noValidate>
+      <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-mark">
-            <Image
-              src="/logo.jpg"
-              alt="BUSahero logo"
-              width={40}
-              height={40}
-              priority
-            />
-          </div>
+          <div className="brand-mark">🚌</div>
 
           <div>
-            <div className="brand-name">BUSahero</div>
+            <div className="brand-name">BUSAhero</div>
             <div className="brand-sub">Operator Console</div>
           </div>
         </div>
@@ -261,56 +241,56 @@ export default function LoginPage() {
           Monitor buses and manage fares in real time.
         </p>
 
-        <label className="field-label login-field-label" htmlFor="email">
-          Email
-        </label>
+        <form onSubmit={handleLogin} noValidate>
+          <label className="field-label login-field-label" htmlFor="loginEmail">
+            Username / Email
+          </label>
 
-        <input
-          id="email"
-          type="email"
-          className="text-input login-input"
-          placeholder="you@busahero.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="username"
-          required
-        />
+          <input
+            id="loginEmail"
+            className="text-input login-input"
+            placeholder="you@busahero.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="username"
+          />
 
-        <label className="field-label login-field-label" htmlFor="password">
-          Password
-        </label>
+          <label
+            className="field-label login-field-label"
+            htmlFor="loginPassword"
+          >
+            Password
+          </label>
 
-        <input
-          id="password"
-          type="password"
-          className="text-input login-input"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-          required
-        />
+          <input
+            id="loginPassword"
+            type="password"
+            className="text-input login-input"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+          />
 
-        <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
+          <div className={`form-error ${error ? "show" : ""}`}>{error}</div>
 
-        <div className="login-forgot-row">
-          <Link href="/forgot-password" className="login-forgot">
-            Forgot password?
-          </Link>
-        </div>
+          <button
+            type="submit"
+            className="btn btn-primary login-submit"
+            disabled={submitting}
+          >
+            {submitting ? "Logging in…" : "Log In"}
+          </button>
+        </form>
 
-        <button
-          type="submit"
-          className="btn btn-primary login-submit"
-          disabled={submitting}
-        >
-          {submitting ? "Signing in…" : "Sign In"}
-        </button>
+        <a className="login-forgot" href="/forgot-password">
+          Forgot password?
+        </a>
 
         <p className="login-signup">
-          No account? <Link href="/register">Register</Link>
+          Don&apos;t have an account? <a href="/register">Sign up</a>
         </p>
-      </form>
+      </div>
     </div>
   );
 }

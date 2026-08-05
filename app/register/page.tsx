@@ -106,7 +106,7 @@ export default function RegisterPage() {
           <span style={{ fontSize: 12.5 }}>
             Already registered?{" "}
             <Link
-              href="/login"
+              href="/"
               style={{ color: "var(--blue-600)", fontWeight: 600 }}
             >
               Sign in
