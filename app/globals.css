@@ -1555,6 +1555,12 @@ tbody tr:last-child td {
    .team-name / .team-role rules in globals.additions.css with
    this block instead (same selectors, new look).
    ============================================================ */
+/* ============================================================
+   Team cards — dark glowing portrait style
+   Replace the earlier .team-grid / .team-card / .team-avatar /
+   .team-name / .team-role rules in globals.additions.css with
+   this block instead (same selectors, new look).
+   ============================================================ */
 
 .team-grid {
   display: grid;

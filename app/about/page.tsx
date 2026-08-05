@@ -14,17 +14,17 @@ interface Developer {
 const developers: Developer[] = [
   {
     name: "Angelica Aquino",
-    role: "Web Developer",
+    role: "Full Stack Developer, UI/UX Designer, Hardware integration",
     photo: "/team/angelica.png",
   },
   {
     name: "Krizia Mae F. Funiestas",
-    role: "Lead Developer",
+    role: "Mobile App Developer, Quality Assurance Engineer, and Testing",
     photo: "/team/krizia.png",
   },
   {
     name: "Daisy Ann M. Magno",
-    role: "Documentation",
+    role: "Documentation Specialist, QA Tester",
     photo: "/team/daisy_ann.png",
   },
   {
@@ -35,7 +35,7 @@ const developers: Developer[] = [
 ];
 
 const adviser: Developer = {
-  name: "Rowela Gongora, MCS",
+  name: "Rowela Gongora, MSCS",
   role: "Thesis Adviser",
   photo: "/team/rowela.png",
 };
