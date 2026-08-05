@@ -1627,16 +1627,6 @@ tbody tr:last-child td {
   font-size: 34px;
 }
 
-.team-photo-wrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: radial-gradient(circle at 50% 15%, rgba(255, 150, 70, 0.55), transparent 62%);
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
 .team-card-info {
   padding: 12px 14px 16px;
 }
