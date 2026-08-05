@@ -39,7 +39,7 @@ export default function Sidebar() {
 
   async function handleLogout() {
     await signOut();
-    router.replace("/login");
+    router.replace("/");
   }
 
   return (

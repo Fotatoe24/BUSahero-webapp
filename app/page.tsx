@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface MapTile {
   id: string;
@@ -228,7 +229,15 @@ export default function LoginPage() {
 
       <div className="login-card">
         <div className="login-logo">
-          <div className="brand-mark">🚌</div>
+          <div className="brand-mark">
+            <Image
+              src="/logo.jpg"
+              alt="BUSAhero logo"
+              width={34}
+              height={34}
+              className="brand-logo"
+            />
+          </div>
 
           <div>
             <div className="brand-name">BUSAhero</div>
