@@ -78,7 +78,25 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
       }
     });
 
+    // Keep the map's internal canvas size in sync with the actual container
+    // size. Without this, if the container resizes after init (sidebar,
+    // fonts loading, layout shifts), maplibre's projection math goes stale
+    // and markers drift further off the further you zoom out — they're
+    // computed correctly from lat/lng, but rendered against a canvas sized
+    // for the old container dimensions.
+    const resizeObserver = new ResizeObserver(() => {
+      map.resize();
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    // Also catch the case where the container's final size settles just
+    // after mount (e.g. web font swap reflowing the sidebar/content width).
+    const settleTimer = setTimeout(() => map.resize(), 300);
+
     return () => {
+      resizeObserver.disconnect();
+      clearTimeout(settleTimer);
       map.remove();
       mapRef.current = null;
     };
@@ -96,13 +114,14 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
         console.warn(`Skipping bus ${bus.id}: invalid coordinates`, bus);
         return;
       }
-      seen.add(bus.id);
+      const key = `${bus.region}-${bus.id}`;
+      seen.add(key);
 
       const className = `map-bus-pin ${
         bus.status === "In Transit" ? "moving" : "stopped"
       }`;
 
-      const existing = markersRef.current[bus.id];
+      const existing = markersRef.current[key];
 
       if (existing) {
         existing.setLngLat([bus.longitude, bus.latitude]);
@@ -112,16 +131,16 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
         el.className = className;
         el.innerHTML = `🚌<span>${bus.id.toUpperCase()}</span>`;
 
-        markersRef.current[bus.id] = new maplibregl.Marker({ element: el })
+        markersRef.current[key] = new maplibregl.Marker({ element: el })
           .setLngLat([bus.longitude, bus.latitude])
           .addTo(map);
       }
     });
 
-    Object.keys(markersRef.current).forEach((id) => {
-      if (!seen.has(id)) {
-        markersRef.current[id].remove();
-        delete markersRef.current[id];
+    Object.keys(markersRef.current).forEach((key) => {
+      if (!seen.has(key)) {
+        markersRef.current[key].remove();
+        delete markersRef.current[key];
       }
     });
   }, [buses]);
