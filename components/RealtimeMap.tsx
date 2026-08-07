@@ -32,6 +32,10 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
 
     mapRef.current = map;
 
+    // TEMP DEBUG — remove after confirming the resize fix. Exposes the map
+    // instance so we can call map.resize() directly from devtools console.
+    (window as any).__debugMap = map;
+
     map.addControl(new maplibregl.NavigationControl(), "bottom-right");
 
     function addRouteLayer() {
@@ -90,28 +94,54 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
 
     resizeObserver.observe(containerRef.current);
 
-    // A single fixed-delay timer is a guess, not a guarantee — if webfonts,
-    // the sidebar, or AuthGuard's loading state settle later than that
-    // delay, the map's internal size stays stale and markers drift further
-    // off the further you zoom out. Instead: resize once the map itself
-    // reports it has loaded (tiles + style ready), then again on a few
-    // staggered follow-ups to catch any late reflow the ResizeObserver
-    // might narrowly miss (e.g. a reflow that happens between two of its
-    // callback batches).
+    // Resize once the map itself reports it has loaded (tiles + style
+    // ready) — belt-and-suspenders alongside the polling below.
     function forceResize() {
       map.resize();
     }
 
     map.on("load", forceResize);
 
-    const settleTimers = [100, 500, 1200, 2500].map((ms) =>
-      setTimeout(forceResize, ms)
-    );
+    // Fixed-delay timers are a guess about when layout finally settles.
+    // Instead, actively poll the container's real size against what the
+    // map last saw, and resize whenever they disagree — for a window long
+    // enough to catch slow settling (webfonts, flex growth from sibling
+    // content, AuthGuard's loading-state swap, etc). This can't go stale
+    // the way a fixed timeout list can.
+    let lastWidth = -1;
+    let lastHeight = -1;
+    let pollFrame: number;
+    const pollStartedAt = Date.now();
+    const POLL_DURATION_MS = 6000;
+
+    function pollSize() {
+      const el = containerRef.current;
+      if (el) {
+        const { clientWidth, clientHeight } = el;
+        if (clientWidth !== lastWidth || clientHeight !== lastHeight) {
+          lastWidth = clientWidth;
+          lastHeight = clientHeight;
+          map.resize();
+        }
+      }
+
+      if (Date.now() - pollStartedAt < POLL_DURATION_MS) {
+        pollFrame = requestAnimationFrame(pollSize);
+      }
+    }
+
+    pollFrame = requestAnimationFrame(pollSize);
+
+    // Belt-and-suspenders: browser-level zoom / window resize can change
+    // devicePixelRatio and layout in ways that don't always route through
+    // the container ResizeObserver in every browser.
+    window.addEventListener("resize", forceResize);
 
     return () => {
       resizeObserver.disconnect();
       map.off("load", forceResize);
-      settleTimers.forEach(clearTimeout);
+      window.removeEventListener("resize", forceResize);
+      cancelAnimationFrame(pollFrame);
       map.remove();
       mapRef.current = null;
     };
