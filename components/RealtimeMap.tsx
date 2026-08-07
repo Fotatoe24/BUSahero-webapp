@@ -117,18 +117,27 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
       const key = `${bus.region}-${bus.id}`;
       seen.add(key);
 
-      const className = `map-bus-pin ${
-        bus.status === "In Transit" ? "moving" : "stopped"
-      }`;
-
+      const statusClass = bus.status === "In Transit" ? "moving" : "stopped";
       const existing = markersRef.current[key];
 
       if (existing) {
         existing.setLngLat([bus.longitude, bus.latitude]);
-        existing.getElement().className = className;
+
+        // IMPORTANT: never do `getElement().className = ...` here. That
+        // replaces the ENTIRE class list, including the internal
+        // `maplibregl-marker` (+ anchor) classes MapLibre adds at creation
+        // time, which carry the `position: absolute` the marker's
+        // transform-based positioning depends on. Losing that class lets
+        // the element fall into normal document flow, so it slowly drifts
+        // away from its true lng/lat — most visible during zoom repaints,
+        // which is exactly the symptom being fixed here. Toggle only the
+        // status classes instead.
+        const el = existing.getElement();
+        el.classList.remove("moving", "stopped");
+        el.classList.add(statusClass);
       } else {
         const el = document.createElement("div");
-        el.className = className;
+        el.className = `map-bus-pin ${statusClass}`;
         el.innerHTML = `<span class="map-bus-pin-icon">🚌</span><span class="map-bus-pin-label">${bus.id.toUpperCase()}</span>`;
 
         markersRef.current[key] = new maplibregl.Marker({
