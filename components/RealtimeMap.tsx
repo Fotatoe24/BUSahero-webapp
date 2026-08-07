@@ -90,13 +90,28 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
 
     resizeObserver.observe(containerRef.current);
 
-    // Also catch the case where the container's final size settles just
-    // after mount (e.g. web font swap reflowing the sidebar/content width).
-    const settleTimer = setTimeout(() => map.resize(), 300);
+    // A single fixed-delay timer is a guess, not a guarantee — if webfonts,
+    // the sidebar, or AuthGuard's loading state settle later than that
+    // delay, the map's internal size stays stale and markers drift further
+    // off the further you zoom out. Instead: resize once the map itself
+    // reports it has loaded (tiles + style ready), then again on a few
+    // staggered follow-ups to catch any late reflow the ResizeObserver
+    // might narrowly miss (e.g. a reflow that happens between two of its
+    // callback batches).
+    function forceResize() {
+      map.resize();
+    }
+
+    map.on("load", forceResize);
+
+    const settleTimers = [100, 500, 1200, 2500].map((ms) =>
+      setTimeout(forceResize, ms)
+    );
 
     return () => {
       resizeObserver.disconnect();
-      clearTimeout(settleTimer);
+      map.off("load", forceResize);
+      settleTimers.forEach(clearTimeout);
       map.remove();
       mapRef.current = null;
     };
