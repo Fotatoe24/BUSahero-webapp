@@ -129,9 +129,21 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
       } else {
         const el = document.createElement("div");
         el.className = className;
-        el.innerHTML = `🚌<span>${bus.id.toUpperCase()}</span>`;
+        el.innerHTML = `<span class="map-bus-pin-icon">🚌</span><span class="map-bus-pin-label">${bus.id.toUpperCase()}</span>`;
 
-        markersRef.current[key] = new maplibregl.Marker({ element: el })
+        markersRef.current[key] = new maplibregl.Marker({
+          element: el,
+          // Fix the anchor explicitly instead of letting MapLibre infer it
+          // from the element's rendered size — that inference is what was
+          // causing the pin to appear to grow/shrink and drift during zoom.
+          anchor: "bottom",
+          // Marker DOM elements are always screen-space (pixel) sized and
+          // never scale with zoom by design; pinning rotation/pitch
+          // alignment to the viewport makes that explicit so a future
+          // tilt/bearing change can't affect it either.
+          rotationAlignment: "viewport",
+          pitchAlignment: "viewport",
+        })
           .setLngLat([bus.longitude, bus.latitude])
           .addTo(map);
       }

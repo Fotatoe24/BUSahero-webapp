@@ -883,30 +883,34 @@ tbody tr:last-child td {
   border: 1px solid var(--line);
 }
 
+/* ---------- Bus marker size lock (fixes marker appearing to
+   grow/shrink or drift while zooming the map) ---------- */
+
 .map-bus-pin {
-  position: relative;
+  /* Explicit fixed box so MapLibre's anchor math never has to infer
+     size from font metrics / emoji rendering, which was the source
+     of the marker appearing bound to zoom level. */
+  width: 34px;
+  height: 44px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  line-height: 1;
+  justify-content: flex-end;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
-.map-bus-pin:hover {
-  transform: scale(1.15);
+.map-bus-pin-icon {
+  font-size: 26px;
+  line-height: 1;
+  display: block;
 }
 
-.map-bus-pin span {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 5px;
+.map-bus-pin-label {
+  margin-top: 4px;
   background: white;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 2px 6px;
+  border-radius: 6px;
   font-size: 10px;
   font-family: var(--font-mono);
   font-weight: 700;
@@ -915,7 +919,11 @@ tbody tr:last-child td {
   white-space: nowrap;
 }
 
-.map-bus-pin.moving {
+.map-bus-pin:hover {
+  filter: brightness(1.08);
+}
+
+.map-bus-pin.moving .map-bus-pin-icon {
   filter: drop-shadow(0 0 8px var(--route-green));
 }
 
