@@ -884,10 +884,12 @@ tbody tr:last-child td {
 }
 
 .map-bus-pin {
+  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
   font-size: 28px;
+  line-height: 1;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -897,6 +899,10 @@ tbody tr:last-child td {
 }
 
 .map-bus-pin span {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
   margin-top: 5px;
   background: white;
   padding: 4px 8px;
@@ -906,6 +912,7 @@ tbody tr:last-child td {
   font-weight: 700;
   color: var(--ink-700);
   box-shadow: var(--shadow-sm);
+  white-space: nowrap;
 }
 
 .map-bus-pin.moving {
