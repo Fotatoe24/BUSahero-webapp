@@ -17,10 +17,13 @@
     "next": "14.2.5",
     "nodemailer": "^6.9.16",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^20.19.43",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^18.3.3",

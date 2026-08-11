@@ -6,6 +6,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/useAuth";
 
+import dynamic from "next/dynamic";
+
+const RealtimeMap = dynamic(() => import("@/components/RealtimeMap"), {
+  ssr: false,
+});
+
 interface MapTile {
   id: string;
   label: string;

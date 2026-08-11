@@ -1,14 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import maplibregl, { Map as MapLibreMap, Marker } from "maplibre-gl";
+import L, { Map as LeafletMap, Marker } from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 import { Bus } from "@/types/bus";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
-
-const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
-const ROUTE_SOURCE_ID = "corridor-route";
-const ROUTE_LAYER_ID = "corridor-route-line";
 
 interface RealtimeMapProps {
   buses: Bus[];
@@ -16,98 +13,51 @@ interface RealtimeMapProps {
 
 export default function RealtimeMap({ buses }: RealtimeMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<MapLibreMap | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<Record<string, Marker>>({});
+  const routeLayerRef = useRef<L.Polyline | null>(null);
 
   // Init the map once
   useEffect(() => {
-    if (!containerRef.current || mapRef.current || !MAPTILER_KEY) return;
+    if (!containerRef.current || mapRef.current) return;
 
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`,
-      center: [120.05, 15.05],
+    const map = L.map(containerRef.current, {
+      center: [15.05, 120.05],
       zoom: 10,
+      zoomControl: false,
     });
 
     mapRef.current = map;
 
-    // TEMP DEBUG — remove after confirming the resize fix. Exposes the map
-    // instance so we can call map.resize() directly from devtools console.
-    (window as any).__debugMap = map;
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(map);
 
-    map.addControl(new maplibregl.NavigationControl(), "bottom-right");
+    L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    function addRouteLayer() {
-      if (map.getSource(ROUTE_SOURCE_ID)) return; // avoid dupes on style reloads
-
-      map.addSource(ROUTE_SOURCE_ID, {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: olongapoToSantaCruzRoute,
-          },
-        },
-      });
-
-      map.addLayer({
-        id: ROUTE_LAYER_ID,
-        type: "line",
-        source: ROUTE_SOURCE_ID,
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#2e5cf0",
-          "line-width": 4,
-          "line-opacity": 0.85,
-        },
-      });
-    }
-
-    if (map.isStyleLoaded()) {
-      addRouteLayer();
-    } else {
-      map.on("load", addRouteLayer);
-    }
-
-    // MapTiler style swaps can drop custom sources/layers — re-add if that happens
-    map.on("styledata", () => {
-      if (map.isStyleLoaded() && !map.getSource(ROUTE_SOURCE_ID)) {
-        addRouteLayer();
+    routeLayerRef.current = L.polyline(
+      olongapoToSantaCruzRoute.map(([lng, lat]) => [lat, lng]),
+      {
+        color: "#2e5cf0",
+        weight: 4,
+        opacity: 0.85,
+        lineJoin: "round",
+        lineCap: "round",
       }
-    });
+    ).addTo(map);
 
-    // Keep the map's internal canvas size in sync with the actual container
-    // size. Without this, if the container resizes after init (sidebar,
-    // fonts loading, layout shifts), maplibre's projection math goes stale
-    // and markers drift further off the further you zoom out — they're
-    // computed correctly from lat/lng, but rendered against a canvas sized
-    // for the old container dimensions.
     const resizeObserver = new ResizeObserver(() => {
-      map.resize();
+      map.invalidateSize();
     });
 
     resizeObserver.observe(containerRef.current);
 
-    // Resize once the map itself reports it has loaded (tiles + style
-    // ready) — belt-and-suspenders alongside the polling below.
     function forceResize() {
-      map.resize();
+      map.invalidateSize();
     }
 
-    map.on("load", forceResize);
-
-    // Fixed-delay timers are a guess about when layout finally settles.
-    // Instead, actively poll the container's real size against what the
-    // map last saw, and resize whenever they disagree — for a window long
-    // enough to catch slow settling (webfonts, flex growth from sibling
-    // content, AuthGuard's loading-state swap, etc). This can't go stale
-    // the way a fixed timeout list can.
     let lastWidth = -1;
     let lastHeight = -1;
     let pollFrame: number;
@@ -121,7 +71,7 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
         if (clientWidth !== lastWidth || clientHeight !== lastHeight) {
           lastWidth = clientWidth;
           lastHeight = clientHeight;
-          map.resize();
+          map.invalidateSize();
         }
       }
 
@@ -132,14 +82,10 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
 
     pollFrame = requestAnimationFrame(pollSize);
 
-    // Belt-and-suspenders: browser-level zoom / window resize can change
-    // devicePixelRatio and layout in ways that don't always route through
-    // the container ResizeObserver in every browser.
     window.addEventListener("resize", forceResize);
 
     return () => {
       resizeObserver.disconnect();
-      map.off("load", forceResize);
       window.removeEventListener("resize", forceResize);
       cancelAnimationFrame(pollFrame);
       map.remove();
@@ -159,6 +105,7 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
         console.warn(`Skipping bus ${bus.id}: invalid coordinates`, bus);
         return;
       }
+
       const key = `${bus.region}-${bus.id}`;
       seen.add(key);
 
@@ -166,40 +113,24 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
       const existing = markersRef.current[key];
 
       if (existing) {
-        existing.setLngLat([bus.longitude, bus.latitude]);
+        existing.setLatLng([bus.latitude, bus.longitude]);
 
-        // IMPORTANT: never do `getElement().className = ...` here. That
-        // replaces the ENTIRE class list, including the internal
-        // `maplibregl-marker` (+ anchor) classes MapLibre adds at creation
-        // time, which carry the `position: absolute` the marker's
-        // transform-based positioning depends on. Losing that class lets
-        // the element fall into normal document flow, so it slowly drifts
-        // away from its true lng/lat — most visible during zoom repaints,
-        // which is exactly the symptom being fixed here. Toggle only the
-        // status classes instead.
         const el = existing.getElement();
-        el.classList.remove("moving", "stopped");
-        el.classList.add(statusClass);
+        if (el) {
+          el.classList.remove("moving", "stopped");
+          el.classList.add(statusClass);
+        }
       } else {
-        const el = document.createElement("div");
-        el.className = `map-bus-pin ${statusClass}`;
-        el.innerHTML = `<span class="map-bus-pin-icon">🚌</span><span class="map-bus-pin-label">${bus.id.toUpperCase()}</span>`;
+        const icon = L.divIcon({
+          className: `map-bus-pin ${statusClass}`,
+          html: `<span class="map-bus-pin-icon">🚌</span><span class="map-bus-pin-label">${bus.id.toUpperCase()}</span>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 30],
+        });
 
-        markersRef.current[key] = new maplibregl.Marker({
-          element: el,
-          // Fix the anchor explicitly instead of letting MapLibre infer it
-          // from the element's rendered size — that inference is what was
-          // causing the pin to appear to grow/shrink and drift during zoom.
-          anchor: "bottom",
-          // Marker DOM elements are always screen-space (pixel) sized and
-          // never scale with zoom by design; pinning rotation/pitch
-          // alignment to the viewport makes that explicit so a future
-          // tilt/bearing change can't affect it either.
-          rotationAlignment: "viewport",
-          pitchAlignment: "viewport",
-        })
-          .setLngLat([bus.longitude, bus.latitude])
-          .addTo(map);
+        markersRef.current[key] = L.marker([bus.latitude, bus.longitude], {
+          icon,
+        }).addTo(map);
       }
     });
 
@@ -225,14 +156,7 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
         </span>
       </div>
 
-      {MAPTILER_KEY ? (
-        <div ref={containerRef} className="maptiler-map" />
-      ) : (
-        <div className="empty-state">
-          Add <code>NEXT_PUBLIC_MAPTILER_API_KEY</code> to{" "}
-          <code>.env.local</code> to enable the live map.
-        </div>
-      )}
+      <div ref={containerRef} className="maptiler-map" />
     </div>
   );
 }
