@@ -7,18 +7,13 @@ interface BusInfoModalBus {
   region: string;
   driverName?: string;
   plateNum?: string;
-  busName?: string;
 }
 
 interface BusInfoModalProps {
   open: boolean;
   bus?: BusInfoModalBus | null;
   onClose: () => void;
-  onSave: (values: {
-    driverName: string;
-    plateNum: string;
-    busName: string;
-  }) => void;
+  onSave: (values: { driverName: string; plateNum: string }) => void;
 }
 
 export default function BusInfoModal({
@@ -29,7 +24,6 @@ export default function BusInfoModal({
 }: BusInfoModalProps) {
   const [driverName, setDriverName] = useState<string>("");
   const [plateNum, setPlateNum] = useState<string>("");
-  const [busName, setBusName] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
@@ -43,15 +37,14 @@ export default function BusInfoModal({
   if (!open || !bus) return null;
 
   function handleSave() {
-    if (!driverName.trim() || !plateNum.trim() || !busName.trim()) {
-      setError("Bus name, driver name, and plate number are required.");
+    if (!driverName.trim() || !plateNum.trim()) {
+      setError("Driver name and plate number are required.");
       return;
     }
 
     onSave({
       driverName: driverName.trim(),
       plateNum: plateNum.trim(),
-      busName: busName.trim(),
     });
   }
 
@@ -72,17 +65,6 @@ export default function BusInfoModal({
         </div>
 
         <div className="modal-body">
-          <label className="field-label" htmlFor="busName">
-            Bus name
-          </label>
-          <input
-            id="busName"
-            className="text-input"
-            placeholder="e.g. Zambales Express 1"
-            value={busName}
-            onChange={(e) => setBusName(e.target.value)}
-          />
-
           <label className="field-label" htmlFor="driverName">
             Driver name
           </label>

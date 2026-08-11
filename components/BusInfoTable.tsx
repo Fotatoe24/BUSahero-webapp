@@ -5,7 +5,6 @@ interface BusInfoRow {
   region: string;
   driverName?: string;
   plateNum?: string;
-  busName?: string;
   status: string;
   speed?: number;
 }
@@ -50,7 +49,6 @@ export default function BusInfoTable({
       <thead>
         <tr>
           <th>Bus ID</th>
-          <th>Bus Name</th>
           <th>Region</th>
           <th>Driver</th>
           <th>Plate Number</th>
@@ -64,8 +62,6 @@ export default function BusInfoTable({
         {buses.map((bus) => (
           <tr key={`${bus.region}-${bus.id}`}>
             <td className="pname">{bus.id.toUpperCase()}</td>
-
-            <td>{bus.busName || "—"}</td>
 
             <td style={{ textTransform: "capitalize" }}>{bus.region}</td>
 

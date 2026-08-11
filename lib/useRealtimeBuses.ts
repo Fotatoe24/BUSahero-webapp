@@ -15,7 +15,6 @@ interface Bus {
   updatedAt: number;
   driverName?: string;
   plateNum?: string;
-  busName?: string;
 }
 
 interface BusData {
@@ -27,7 +26,6 @@ interface BusData {
   updatedAt: number;
   DriverName?: string;
   PlateNum?: string;
-  BusName?: string;
 }
 
 type BusSource = "firebase" | "mock";
@@ -45,7 +43,6 @@ const MOCK_BUSES: BusRegions = {
       updatedAt: Date.now(),
       DriverName: "Juan Dela Cruz",
       PlateNum: "ABC123",
-      BusName: "Zambales Express 1",
     },
   },
 
@@ -59,7 +56,6 @@ const MOCK_BUSES: BusRegions = {
       updatedAt: Date.now(),
       DriverName: "Maria Santos",
       PlateNum: "XYZ789",
-      BusName: "Zambales Express 2",
     },
   },
 };
@@ -80,7 +76,6 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
         updatedAt: data.updatedAt,
         driverName: data.DriverName ?? "",
         plateNum: data.PlateNum ?? "",
-        busName: data.BusName ?? "",
       });
     });
   });
@@ -156,12 +151,11 @@ export function useRealtimeBuses() {
     async (
       region: string,
       busId: string,
-      values: { driverName: string; plateNum: string; busName: string }
+      values: { driverName: string; plateNum: string }
     ) => {
       const payload = {
         DriverName: values.driverName,
         PlateNum: values.plateNum,
-        BusName: values.busName,
       };
 
       if (hasFirebaseConfig && db) {
@@ -172,7 +166,6 @@ export function useRealtimeBuses() {
         if (bus) {
           bus.DriverName = values.driverName;
           bus.PlateNum = values.plateNum;
-          bus.BusName = values.busName;
         }
 
         setBuses(flatten(mockState.current));

@@ -43,11 +43,6 @@ export default function DashboardPage() {
                 label="Stopped"
                 value={buses.filter((bus) => bus.status === "Stopped").length}
               />
-
-              <StatCard
-                label="Delayed"
-                value={buses.filter((bus) => bus.status === "Delayed").length}
-              />
             </div>
 
             <RealtimeMap buses={buses} />
