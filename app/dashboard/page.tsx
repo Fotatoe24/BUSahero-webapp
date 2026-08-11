@@ -4,10 +4,13 @@ import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import BusStatusList from "@/components/BusStatusList";
-import RealtimeMap from "@/components/RealtimeMap";
+import dynamic from "next/dynamic";
 import AuthGuard from "@/components/AuthGuard";
-
 import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
+
+const RealtimeMap = dynamic(() => import("@/components/RealtimeMap"), {
+  ssr: false,
+});
 
 export default function DashboardPage() {
   const { buses, loading, source } = useRealtimeBuses();
