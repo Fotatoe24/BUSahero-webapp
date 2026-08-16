@@ -155,20 +155,22 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <div className="nav-group-label">Main</div>
+        <div className="sidebar-main-nav">
+          <div className="nav-group-label">Main</div>
 
-        <nav className="nav">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`nav-item ${pathname === item.href ? "active" : ""}`}
-              onClick={() => setOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+          <nav className="nav">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`nav-item ${pathname === item.href ? "active" : ""}`}
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <div className="nav-group-label">About BUSahero</div>
 

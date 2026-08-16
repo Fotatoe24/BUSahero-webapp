@@ -876,6 +876,9 @@ tbody tr:last-child td {
 }
 
 .maptiler-map {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
   height: 420px;
   width: 100%;
   border-radius: 14px;
@@ -1427,6 +1430,10 @@ tbody tr:last-child td {
 
   .bottom-nav {
     display: block;
+  }
+
+  .sidebar-main-nav {
+    display: none;
   }
 
   .content {
