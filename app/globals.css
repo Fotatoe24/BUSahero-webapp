@@ -1436,6 +1436,10 @@ tbody tr:last-child td {
     display: none;
   }
 
+  .sidebar {
+    padding-bottom: 92px;
+  }
+
   .content {
     padding-bottom: 92px;
   }
