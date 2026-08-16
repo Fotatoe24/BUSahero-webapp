@@ -14,6 +14,7 @@ interface Bus {
   status: "In Transit" | "Stopped" | "Delayed" | string;
   updatedAt: number;
   driverName?: string;
+  conductorName?: string;
   plateNum?: string;
 }
 
@@ -25,6 +26,7 @@ interface BusData {
   status: string;
   updatedAt: number;
   DriverName?: string;
+  ConductorName?: string;
   PlateNum?: string;
 }
 
@@ -42,6 +44,7 @@ const MOCK_BUSES: BusRegions = {
       status: "Stopped",
       updatedAt: Date.now(),
       DriverName: "Juan Dela Cruz",
+      ConductorName: "Ramon Reyes",
       PlateNum: "ABC123",
     },
   },
@@ -55,6 +58,7 @@ const MOCK_BUSES: BusRegions = {
       status: "Stopped",
       updatedAt: Date.now(),
       DriverName: "Maria Santos",
+      ConductorName: "Liza Fernandez",
       PlateNum: "XYZ789",
     },
   },
@@ -75,6 +79,7 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
         status: data.status,
         updatedAt: data.updatedAt,
         driverName: data.DriverName ?? "",
+        conductorName: data.ConductorName ?? "",
         plateNum: data.PlateNum ?? "",
       });
     });
@@ -151,10 +156,11 @@ export function useRealtimeBuses() {
     async (
       region: string,
       busId: string,
-      values: { driverName: string; plateNum: string }
+      values: { driverName: string; conductorName: string; plateNum: string }
     ) => {
       const payload = {
         DriverName: values.driverName,
+        ConductorName: values.conductorName,
         PlateNum: values.plateNum,
       };
 
@@ -165,6 +171,7 @@ export function useRealtimeBuses() {
 
         if (bus) {
           bus.DriverName = values.driverName;
+          bus.ConductorName = values.conductorName;
           bus.PlateNum = values.plateNum;
         }
 

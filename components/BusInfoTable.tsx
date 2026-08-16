@@ -4,6 +4,7 @@ interface BusInfoRow {
   id: string;
   region: string;
   driverName?: string;
+  conductorName?: string;
   plateNum?: string;
   status: string;
   speed?: number;
@@ -51,6 +52,7 @@ export default function BusInfoTable({
           <th>Bus ID</th>
           <th>Region</th>
           <th>Driver</th>
+          <th>Conductor</th>
           <th>Plate Number</th>
           <th>Status</th>
           <th>Speed</th>
@@ -66,6 +68,8 @@ export default function BusInfoTable({
             <td style={{ textTransform: "capitalize" }}>{bus.region}</td>
 
             <td>{bus.driverName || "—"}</td>
+
+            <td>{bus.conductorName || "—"}</td>
 
             <td className="mono">{bus.plateNum || "—"}</td>
 
