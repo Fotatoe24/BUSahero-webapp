@@ -38,7 +38,7 @@ export default function BusInfoTable({
   onEdit,
 }: BusInfoTableProps) {
   if (loading) {
-    return <div className="empty-state">Loading bus info…</div>;
+    return <div className="empty-state">Loading bus information…</div>;
   }
 
   if (!buses.length) {
@@ -81,7 +81,7 @@ export default function BusInfoTable({
               <td>
                 <button
                   className="row-btn"
-                  title="Edit bus info"
+                  title="Edit bus information"
                   onClick={() => onEdit(bus.region, bus.id)}
                 >
                   ✎

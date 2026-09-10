@@ -15,7 +15,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/fares", label: "Fares" },
-  { href: "/bus-info", label: "Bus Info" },
+  { href: "/bus-info", label: "Bus Information" },
 ];
 
 const INFO_NAV_ITEMS: NavItem[] = [

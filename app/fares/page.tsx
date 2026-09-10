@@ -75,7 +75,7 @@ export default function FaresPage() {
           <div className="card">
             <div className="card-head">
               <div>
-                <div className="section-title">Fare Calculation</div>
+                <div className="section-title">Fare Matrix</div>
                 <div className="section-sub">
                   All fares are computed from this formula — no per-route
                   pricing
@@ -86,7 +86,7 @@ export default function FaresPage() {
                 className="btn btn-primary"
                 onClick={() => setModalOpen(true)}
               >
-                Edit Fare Calculation
+                Edit Fare Matrix
               </button>
             </div>
 

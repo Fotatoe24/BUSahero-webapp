@@ -46,7 +46,7 @@ export default function BusInfoPage() {
     if (!editingKey) return;
 
     await updateBusInfo(editingKey.region, editingKey.id, values);
-    showToast("Bus info updated");
+    showToast("Bus information updated");
     closeModal();
   }
 
@@ -57,7 +57,7 @@ export default function BusInfoPage() {
 
         <div className="main">
           <Topbar
-            title="Bus Info"
+            title="Bus Information"
             subtitle="Driver and vehicle details"
             source={source === "firebase" ? "firebase" : "mock"}
           />
@@ -91,7 +91,7 @@ export default function BusInfoPage() {
             <div className="card">
               <div className="card-head">
                 <div>
-                  <div className="section-title">Bus Info</div>
+                  <div className="section-title">Bus Information</div>
                   <div className="section-sub">
                     Driver name and plate number per bus
                   </div>
