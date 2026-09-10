@@ -82,11 +82,6 @@ export default function BusInfoPage() {
                 label="Stopped"
                 value={buses.filter((bus) => bus.status === "Stopped").length}
               />
-
-              <StatCard
-                label="Delayed"
-                value={buses.filter((bus) => bus.status === "Delayed").length}
-              />
             </div>
 
             <div className="card">

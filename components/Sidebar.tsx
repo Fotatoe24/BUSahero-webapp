@@ -19,8 +19,6 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const INFO_NAV_ITEMS: NavItem[] = [
-  { href: "/mission", label: "Mission" },
-  { href: "/vision", label: "Vision" },
   { href: "/about", label: "About Us" },
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms & Conditions" },

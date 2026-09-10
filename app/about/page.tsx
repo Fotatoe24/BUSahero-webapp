@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import AuthGuard from "@/components/AuthGuard";
@@ -33,6 +32,68 @@ const adviser: Developer = {
   name: "Rowela Gongora, MSCS",
   role: "Thesis Adviser",
 };
+
+interface Goal {
+  icon: string;
+  title: string;
+  body: string;
+}
+
+const missionGoals: Goal[] = [
+  {
+    icon: "👥",
+    title: "Serve Commuters",
+    body: "Provide passengers with accurate and timely transportation information for better travel planning.",
+  },
+  {
+    icon: "🚩",
+    title: "Improve Accessibility",
+    body: "Enable commuters to easily monitor bus locations and estimated arrival times in real time.",
+  },
+  {
+    icon: "⏱️",
+    title: "Reduce Waiting Time",
+    body: "Help passengers minimize unnecessary waiting through reliable arrival time estimation.",
+  },
+  {
+    icon: "🚌",
+    title: "Enhance Public Transportation",
+    body: "Support more organized and efficient bus transportation services through modern technology.",
+  },
+  {
+    icon: "💡",
+    title: "Promote Innovation",
+    body: "Develop practical technological solutions that contribute to smarter and more connected transportation systems.",
+  },
+];
+
+const visionGoals: Goal[] = [
+  {
+    icon: "🌍",
+    title: "Smarter Transportation",
+    body: "Promote the adoption of intelligent transportation technologies that improve the efficiency of public transit services.",
+  },
+  {
+    icon: "👥",
+    title: "Better Commuting Experience",
+    body: "Create a transportation environment where commuters can travel with confidence using reliable real-time information.",
+  },
+  {
+    icon: "💡",
+    title: "Continuous Innovation",
+    body: "Encourage the continuous development of digital solutions that address transportation challenges.",
+  },
+  {
+    icon: "✅",
+    title: "Reliable Information",
+    body: "Deliver accurate and dependable tracking and arrival estimates that commuters can trust.",
+  },
+  {
+    icon: "🤝",
+    title: "Community Impact",
+    body: "Support communities by making public transportation more accessible, efficient, and user-friendly.",
+  },
+];
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -70,6 +131,7 @@ export default function AboutPage() {
           <div className="content">
             <div className="info-heading">About BUSahero</div>
 
+            {/* About the App */}
             <div className="info-hero">
               <div>
                 <span className="icon-badge">🚌</span>
@@ -88,43 +150,104 @@ export default function AboutPage() {
               </div>
             </div>
 
-            <div className="info-subheading">Mission &amp; Vision</div>
-            <div className="info-grid two-col">
-              <div className="info-tile">
+            {/* Mission */}
+            <div className="info-subheading underline">Mission</div>
+
+            <div className="info-hero">
+              <div>
                 <span className="icon-badge">🚩</span>
-                <div className="info-tile-title">Our Mission</div>
-                <div className="info-tile-body">
-                  To develop a reliable and user-friendly web application
-                  that empowers commuters with real-time bus tracking,
-                  accurate arrival estimation, and fare computation —
-                  improving the daily commuting experience between Olongapo
-                  City and Zambales.
-                </div>
-                <Link
-                  href="/mission"
-                  className="info-footnote"
-                  style={{ display: "inline-block", marginTop: 12 }}
-                >
-                  Read the full mission →
-                </Link>
+                <div className="info-card-title">Our Mission</div>
+                <p className="info-card-body">
+                  Our mission is to develop a reliable and user-friendly web
+                  application that empowers commuters by providing real-time
+                  bus tracking, accurate arrival time estimation, seat
+                  availability information, and fare computation. Through
+                  innovative GPS-based tracking and intelligent transportation
+                  tools, BUSahero aims to improve the daily commuting
+                  experience, reduce waiting time, and promote a safer, more
+                  efficient, and more convenient public transportation system
+                  between Olongapo City and Zambales.
+                </p>
               </div>
 
-              <div className="info-tile">
-                <span className="icon-badge">👁️</span>
-                <div className="info-tile-title">Our Vision</div>
-                <div className="info-tile-body">
-                  To become a trusted and innovative transportation solution
-                  that transforms the commuting experience through smart
-                  technology, supporting the modernization of public
-                  transportation in the Philippines.
+              <div className="info-hero-illustration" aria-hidden="true">
+                🚩
+              </div>
+            </div>
+
+            <div className="info-grid cols-5" style={{ marginTop: 14 }}>
+              {missionGoals.map((g) => (
+                <div className="info-tile" key={g.title}>
+                  <span className="icon-badge">{g.icon}</span>
+                  <div className="info-tile-title">{g.title}</div>
+                  <div className="info-tile-body">{g.body}</div>
                 </div>
-                <Link
-                  href="/vision"
-                  className="info-footnote"
-                  style={{ display: "inline-block", marginTop: 12 }}
-                >
-                  Read the full vision →
-                </Link>
+              ))}
+            </div>
+
+            {/* Vision */}
+            <div className="info-subheading underline">Vision</div>
+
+            <div className="info-hero">
+              <div>
+                <span className="icon-badge">👁️</span>
+                <div className="info-card-title">Our Vision</div>
+                <p className="info-card-body">
+                  Our vision is to become a trusted and innovative
+                  transportation solution that transforms the commuting
+                  experience through smart technology. BUSahero envisions a
+                  future where every commuter has access to accurate,
+                  real-time transportation information, enabling safer,
+                  faster, and more convenient travel while supporting the
+                  modernization of public transportation systems in the
+                  Philippines.
+                </p>
+              </div>
+
+              <div className="info-hero-illustration" aria-hidden="true">
+                👁️
+              </div>
+            </div>
+
+            <div className="info-grid cols-5" style={{ marginTop: 14 }}>
+              {visionGoals.map((g) => (
+                <div className="info-tile" key={g.title}>
+                  <span className="icon-badge">{g.icon}</span>
+                  <div className="info-tile-title">{g.title}</div>
+                  <div className="info-tile-body">{g.body}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Contact */}
+            <div className="info-subheading underline">Contact</div>
+
+            <div
+              className="card"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr",
+                gap: 18,
+                padding: 22,
+                alignItems: "flex-start",
+              }}
+            >
+              <span className="icon-badge lg">✉️</span>
+              <div>
+                <div className="info-card-title">Get in Touch</div>
+                <p className="info-card-body">
+                  For questions, feedback, or concerns about BUSahero, reach
+                  out to the development team.
+                </p>
+                <p className="info-card-body" style={{ marginTop: 8 }}>
+                  Email:{" "}
+                  <a href="mailto:BusaHero.inc@gmail.com" style={{ color: "var(--blue-600)", fontWeight: 600 }}>
+                    BusaHero.inc@gmail.com
+                  </a>
+                  <br />
+                  University: President Ramon Magsaysay State University,
+                  Iba, Zambales, Philippines
+                </p>
               </div>
             </div>
 

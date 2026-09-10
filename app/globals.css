@@ -913,11 +913,13 @@ tbody tr:last-child td {
    grow/shrink or drift while zooming the map) ---------- */
 
 .map-bus-pin {
-  /* Explicit fixed box so MapLibre's anchor math never has to infer
-     size from font metrics / emoji rendering, which was the source
-     of the marker appearing bound to zoom level. */
-  width: 34px;
-  height: 44px;
+  /* Explicit fixed box so the anchor math never has to infer size from
+     font metrics / emoji rendering, which was the source of the marker
+     appearing bound to zoom level. Icon/label styling itself lives in
+     the single .map-bus-pin-icon / .map-bus-pin-label block below,
+     next to .leaflet-container, to avoid two conflicting definitions. */
+  width: 28px;
+  height: 46px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -926,35 +928,8 @@ tbody tr:last-child td {
   transition: filter 0.2s ease;
 }
 
-.map-bus-pin-icon {
-  font-size: 26px;
-  line-height: 1;
-  display: block;
-}
-
-.map-bus-pin-label {
-  margin-top: 4px;
-  background: white;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--ink-700);
-  box-shadow: var(--shadow-sm);
-  white-space: nowrap;
-}
-
 .map-bus-pin:hover {
   filter: brightness(1.08);
-}
-
-.map-bus-pin.moving .map-bus-pin-icon {
-  filter: drop-shadow(0 0 8px var(--route-green));
-}
-
-.map-bus-pin.stopped {
-  opacity: 0.6;
 }
 
 /* ---------- Login page ---------- */
@@ -1605,16 +1580,6 @@ tbody tr:last-child td {
   }
 }
 
-.info-grid.two-col {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .info-grid.two-col {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .info-tile {
   position: relative;
   background: var(--card);
@@ -1806,9 +1771,17 @@ tbody tr:last-child td {
 }
 
 .map-bus-pin-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-bus-pin-img {
   display: block;
-  font-size: 20px;
-  text-align: center;
+  width: 18px;
+  height: 35px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
 .map-bus-pin-label {

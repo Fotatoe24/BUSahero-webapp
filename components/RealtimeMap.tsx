@@ -129,9 +129,9 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
       } else {
         const icon = L.divIcon({
           className: `map-bus-pin ${statusClass}`,
-          html: `<span class="map-bus-pin-icon">🚌</span><span class="map-bus-pin-label">${bus.id.toUpperCase()}</span>`,
-          iconSize: [30, 30],
-          iconAnchor: [15, 30],
+          html: `<span class="map-bus-pin-icon"><img src="/bus-icon.png" class="map-bus-pin-img" alt="" /></span><span class="map-bus-pin-label">${bus.id.toUpperCase()}</span>`,
+          iconSize: [28, 46],
+          iconAnchor: [14, 34],
         });
 
         markersRef.current[key] = L.marker([bus.latitude, bus.longitude], {

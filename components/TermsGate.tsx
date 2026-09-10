@@ -1,49 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TERMS_CLAUSES } from "@/lib/termsContent";
-
-const STORAGE_KEY = "busahero_terms_accepted_v1";
 
 /**
  * Application-level entry point for Terms & Conditions consent.
  *
  * Mounted once in app/layout.tsx (above everything, including the login
- * screen) so it appears the first time anyone opens BUSahero, regardless
- * of which route they land on, and never again afterward — consent is
- * remembered in localStorage since the app has no account-level consent
- * mechanism yet. `children` are not rendered at all until acceptance is
- * confirmed, so the app can't be used behind the modal by accident.
+ * screen) so it appears whenever BUSahero is opened, regardless of which
+ * route is landed on. Acceptance is intentionally NOT persisted anywhere
+ * (no localStorage/sessionStorage/cookie) — `accepted` is plain in-memory
+ * React state, so it only lasts for the current app opening. A full page
+ * reload re-runs this component from scratch and the modal appears again;
+ * navigating between pages within the same opening does not remount this
+ * component (it lives in the root layout), so it correctly stays accepted
+ * during normal in-app navigation. `children` are not rendered at all
+ * until acceptance is confirmed, so the app can't be used behind the modal
+ * by accident.
  */
 export default function TermsGate({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false);
   const [accepted, setAccepted] = useState(false);
 
-  useEffect(() => {
-    let alreadyAccepted = false;
-
-    try {
-      alreadyAccepted = localStorage.getItem(STORAGE_KEY) === "1";
-    } catch {
-      alreadyAccepted = false;
-    }
-
-    setAccepted(alreadyAccepted);
-    setReady(true);
-  }, []);
-
   function handleAccept() {
-    try {
-      localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      // localStorage unavailable (private mode, etc.) — still let the
-      // user through for this session rather than blocking them.
-    }
-
     setAccepted(true);
   }
-
-  if (!ready) return null;
 
   if (!accepted) {
     return (
