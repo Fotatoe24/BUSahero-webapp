@@ -11,6 +11,7 @@ import AuthGuard from "@/components/AuthGuard";
 
 import { useToast } from "@/components/Toast";
 import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
+import { isBusActive } from "@/lib/busStatus";
 
 export default function BusInfoPage() {
   const { buses, loading, source, updateBusInfo } = useRealtimeBuses();
@@ -66,7 +67,7 @@ export default function BusInfoPage() {
             <div className="stat-grid">
               <StatCard
                 label="Active buses"
-                value={buses.length}
+                value={buses.filter((bus) => isBusActive(bus.status)).length}
                 foot="currently tracked"
               />
 
@@ -93,7 +94,8 @@ export default function BusInfoPage() {
                 <div>
                   <div className="section-title">Bus Information</div>
                   <div className="section-sub">
-                    Driver name and plate number per bus
+                    Driver name and plate number per bus — inactive buses
+                    stay listed here but are hidden from the live map
                   </div>
                 </div>
               </div>

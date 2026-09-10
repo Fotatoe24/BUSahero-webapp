@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import AuthGuard from "@/components/AuthGuard";
@@ -8,45 +8,46 @@ import AuthGuard from "@/components/AuthGuard";
 interface Developer {
   name: string;
   role: string;
-  photo: string;
 }
 
 const developers: Developer[] = [
   {
     name: "Angelica Aquino",
     role: "Full Stack Developer, UI/UX Designer, Hardware integration",
-    photo: "/team/angelica.png",
   },
   {
     name: "Krizia Mae F. Funiestas",
     role: "Mobile App Developer, Quality Assurance Engineer, and Testing",
-    photo: "/team/krizia.png",
   },
   {
     name: "Daisy Ann M. Magno",
     role: "Documentation Specialist, QA Tester",
-    photo: "/team/daisy_ann.png",
   },
   {
     name: "Rhonielyn Mhei B. Tolentino",
     role: "System Analyst",
-    photo: "/team/rhonielyn.png",
   },
 ];
 
 const adviser: Developer = {
   name: "Rowela Gongora, MSCS",
   role: "Thesis Adviser",
-  photo: "/team/rowela.png",
 };
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
 
 function TeamCard({ dev, index }: { dev: Developer; index: number }) {
   return (
     <div className="team-card">
       <span className="team-card-index">{String(index).padStart(2, "0")}</span>
 
-      <div className="team-photo-wrap">
-        <Image src={dev.photo} alt={dev.name} width={240} height={320} />
+      <div className="team-photo-wrap no-photo" aria-hidden="true">
+        {getInitials(dev.name)}
       </div>
 
       <div className="team-card-info">
@@ -67,22 +68,63 @@ export default function AboutPage() {
           <Topbar title="About Us" subtitle="About BUSahero" source="mock" />
 
           <div className="content">
+            <div className="info-heading">About BUSahero</div>
+
             <div className="info-hero">
               <div>
-                <div className="section-title" style={{ marginBottom: 10 }}>
-                  About the Application
-                </div>
+                <span className="icon-badge">🚌</span>
+                <div className="info-card-title">About the App</div>
                 <p className="info-card-body">
                   BUSahero is a web-based real-time bus tracking and arrival
-                  estimation application developed to help commuters monitor bus
-                  locations, estimate arrival times, check seat availability,
-                  and calculate fares for trips between Olongapo City and
-                  Zambales.
+                  estimation application developed to help commuters monitor
+                  bus locations, estimate arrival times, check seat
+                  availability, and calculate fares for trips between
+                  Olongapo City and Zambales.
                 </p>
               </div>
 
               <div className="info-hero-illustration" aria-hidden="true">
                 🚌
+              </div>
+            </div>
+
+            <div className="info-subheading">Mission &amp; Vision</div>
+            <div className="info-grid two-col">
+              <div className="info-tile">
+                <span className="icon-badge">🚩</span>
+                <div className="info-tile-title">Our Mission</div>
+                <div className="info-tile-body">
+                  To develop a reliable and user-friendly web application
+                  that empowers commuters with real-time bus tracking,
+                  accurate arrival estimation, and fare computation —
+                  improving the daily commuting experience between Olongapo
+                  City and Zambales.
+                </div>
+                <Link
+                  href="/mission"
+                  className="info-footnote"
+                  style={{ display: "inline-block", marginTop: 12 }}
+                >
+                  Read the full mission →
+                </Link>
+              </div>
+
+              <div className="info-tile">
+                <span className="icon-badge">👁️</span>
+                <div className="info-tile-title">Our Vision</div>
+                <div className="info-tile-body">
+                  To become a trusted and innovative transportation solution
+                  that transforms the commuting experience through smart
+                  technology, supporting the modernization of public
+                  transportation in the Philippines.
+                </div>
+                <Link
+                  href="/vision"
+                  className="info-footnote"
+                  style={{ display: "inline-block", marginTop: 12 }}
+                >
+                  Read the full vision →
+                </Link>
               </div>
             </div>
 

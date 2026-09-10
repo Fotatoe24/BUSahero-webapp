@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 
 import { Bus } from "@/types/bus";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
+import { isBusActive } from "@/lib/busStatus";
 
 interface RealtimeMapProps {
   buses: Bus[];
@@ -100,7 +101,12 @@ export default function RealtimeMap({ buses }: RealtimeMapProps) {
 
     const seen = new Set<string>();
 
-    buses.forEach((bus) => {
+    // Inactive buses are fully hidden from the map (not just recolored) —
+    // simply skipping them here means an existing marker for a bus that
+    // just went inactive falls out of `seen` below and gets removed, and
+    // a bus that becomes active again gets a marker back automatically
+    // the next time `buses` updates, with no page refresh needed.
+    buses.filter((bus) => isBusActive(bus.status)).forEach((bus) => {
       if (!Number.isFinite(bus.latitude) || !Number.isFinite(bus.longitude)) {
         console.warn(`Skipping bus ${bus.id}: invalid coordinates`, bus);
         return;

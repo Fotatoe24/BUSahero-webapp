@@ -9,7 +9,7 @@ import {
   getDistanceBetween,
 } from "@/lib/routeDistances";
 
-export default function FareCalculator() {
+export default function FareMatrixCalculator() {
   const { settings, loading: settingsLoading } = useFareSettings();
 
   const [fromId, setFromId] = useState<string>(TOWN_ROUTES[0]?.id ?? "");
@@ -60,12 +60,12 @@ export default function FareCalculator() {
     <div className="card" style={{ marginBottom: 20 }}>
       <div className="card-head">
         <div>
-          <div className="section-title">Fare Calculator</div>
+          <div className="section-title">Fare Matrix Calculator</div>
 
           <div className="section-sub">
             {settingsLoading
               ? "Loading fare settings…"
-              : `₱${settings.baseFare.toFixed(2)} first ${
+              : `Base fare ₱${settings.baseFare.toFixed(2)} for the first ${
                   settings.baseDistanceKm
                 } km · +₱${settings.perKmRate.toFixed(2)}/km after`}
           </div>

@@ -29,6 +29,10 @@ function statusBadge(status: string) {
     return <span className="badge badge-amber">Delayed</span>;
   }
 
+  if (status.toLowerCase() === "inactive") {
+    return <span className="badge badge-red">Inactive</span>;
+  }
+
   return <span className="badge badge-slate">{status}</span>;
 }
 

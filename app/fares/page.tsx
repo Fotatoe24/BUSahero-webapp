@@ -7,12 +7,13 @@ import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import FareTable from "@/components/FareTable";
 import FareSettingsModal from "@/components/FareSettingsModal";
-import FareCalculator from "@/components/FareCalculator";
+import FareMatrixCalculator from "@/components/FareMatrixCalculator";
 
 import { useToast } from "@/components/Toast";
 import { useFareSettings } from "@/lib/useFareSettings";
 import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
 import { calculateFare } from "@/lib/fareCalculator";
+import { isBusActive } from "@/lib/busStatus";
 
 export default function FaresPage() {
   const { settings, loading, updateSettings, source } = useFareSettings();
@@ -49,7 +50,7 @@ export default function FaresPage() {
           <div className="stat-grid">
             <StatCard
               label="Active buses"
-              value={buses.length}
+              value={buses.filter((bus) => isBusActive(bus.status)).length}
               foot="currently tracked"
             />
             <StatCard
@@ -69,8 +70,8 @@ export default function FaresPage() {
             />
           </div>
 
-          {/* Fare Calculator */}
-          <FareCalculator />
+          {/* Fare Matrix Calculator */}
+          <FareMatrixCalculator />
 
           <div className="card">
             <div className="card-head">

@@ -156,7 +156,7 @@ export const CORRIDOR_TOTAL_KM =
   ZAMBALES_CORRIDOR[ZAMBALES_CORRIDOR.length - 1].cumulativeKm;
 
 // ---------------------------------------------------------------------
-// Town-route selector helpers (used by FareCalculator.tsx)
+// Town-route selector helpers (used by FareMatrixCalculator.tsx)
 // ---------------------------------------------------------------------
 
 export interface TownRoute {

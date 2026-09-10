@@ -7,6 +7,7 @@ import BusStatusList from "@/components/BusStatusList";
 import dynamic from "next/dynamic";
 import AuthGuard from "@/components/AuthGuard";
 import { useRealtimeBuses } from "@/lib/useRealtimeBuses";
+import { isBusActive } from "@/lib/busStatus";
 
 const RealtimeMap = dynamic(() => import("@/components/RealtimeMap"), {
   ssr: false,
@@ -31,7 +32,7 @@ export default function DashboardPage() {
             <div className="stat-grid">
               <StatCard
                 label="Active buses"
-                value={buses.length}
+                value={buses.filter((bus) => isBusActive(bus.status)).length}
                 foot="currently tracked"
               />
 
