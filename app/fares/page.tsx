@@ -78,8 +78,8 @@ export default function FaresPage() {
               <div>
                 <div className="section-title">Fare Matrix</div>
                 <div className="section-sub">
-                  All fares are computed from this formula — no per-route
-                  pricing
+                  Fare per stop along the Olongapo ↔ Santa Cruz corridor,
+                  computed from the formula below
                 </div>
               </div>
 
@@ -91,7 +91,9 @@ export default function FaresPage() {
               </button>
             </div>
 
-            <FareTable settings={settings} loading={loading} />
+            <div className="fare-matrix-table-scroll">
+              <FareTable settings={settings} loading={loading} />
+            </div>
           </div>
         </div>
       </div>

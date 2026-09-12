@@ -9,13 +9,33 @@ import {
   getDistanceBetween,
 } from "@/lib/routeDistances";
 
+// TOWN_ROUTES is ordered Olongapo -> Santa Cruz already, so grouping by
+// municipality just needs to keep that order and bucket consecutive stops.
+function groupByMunicipality(routes: typeof TOWN_ROUTES) {
+  const groups: { municipality: string; stops: typeof TOWN_ROUTES }[] = [];
+
+  for (const stop of routes) {
+    const last = groups[groups.length - 1];
+
+    if (last && last.municipality === stop.municipality) {
+      last.stops.push(stop);
+    } else {
+      groups.push({ municipality: stop.municipality, stops: [stop] });
+    }
+  }
+
+  return groups;
+}
+
 export default function FareMatrixCalculator() {
   const { settings, loading: settingsLoading } = useFareSettings();
+
+  const groupedStops = useMemo(() => groupByMunicipality(TOWN_ROUTES), []);
 
   const [fromId, setFromId] = useState<string>(TOWN_ROUTES[0]?.id ?? "");
 
   const [toId, setToId] = useState<string>(
-    TOWN_ROUTES[1]?.id ?? TOWN_ROUTES[0]?.id ?? ""
+    TOWN_ROUTES[TOWN_ROUTES.length - 1]?.id ?? TOWN_ROUTES[0]?.id ?? ""
   );
 
   const [manualDistance, setManualDistance] = useState<string | null>(null);
@@ -94,10 +114,14 @@ export default function FareMatrixCalculator() {
               value={fromId}
               onChange={(e) => handleFromChange(e.target.value)}
             >
-              {TOWN_ROUTES.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.town}
-                </option>
+              {groupedStops.map((group) => (
+                <optgroup key={group.municipality} label={group.municipality}>
+                  {group.stops.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.town}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -124,10 +148,14 @@ export default function FareMatrixCalculator() {
               value={toId}
               onChange={(e) => handleToChange(e.target.value)}
             >
-              {TOWN_ROUTES.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.town}
-                </option>
+              {groupedStops.map((group) => (
+                <optgroup key={group.municipality} label={group.municipality}>
+                  {group.stops.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.town}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>

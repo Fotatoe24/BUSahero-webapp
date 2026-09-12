@@ -1813,3 +1813,24 @@ tbody tr:last-child td {
   border-radius: 14px;
   font-family: var(--font-body);
 }
+
+/* ---------- Fare Matrix table (full route list) ---------- */
+/* The Fare Matrix table now lists every barangay stop on the corridor
+   (~80 rows) instead of a handful of sample distances, so it needs a
+   capped, scrollable container with a sticky header rather than pushing
+   the whole Fares page down. */
+.fare-matrix-table-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fare-matrix-table-scroll table {
+  width: 100%;
+}
+
+.fare-matrix-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
