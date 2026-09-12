@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import "./globals.additions.css";
 import { AuthProvider } from "@/lib/useAuth";
 import TermsGate from "@/components/TermsGate";
 
