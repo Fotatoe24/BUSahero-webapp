@@ -9,25 +9,28 @@ import {
   getDistanceBetween,
 } from "@/lib/routeDistances";
 
-// TOWN_ROUTES is ordered Olongapo -> Santa Cruz already, so grouping by
-// municipality just needs to keep that order and bucket consecutive stops.
+// Group the flat 88-stop TOWN_ROUTES list by municipality, in the order
+// municipalities first appear (which is already Olongapo -> Santa Cruz
+// since TOWN_ROUTES is derived from ZAMBALES_CORRIDOR).
 function groupByMunicipality(routes: typeof TOWN_ROUTES) {
-  const groups: { municipality: string; stops: typeof TOWN_ROUTES }[] = [];
+  const order: string[] = [];
+  const groups = new Map<string, typeof TOWN_ROUTES>();
 
-  for (const stop of routes) {
-    const last = groups[groups.length - 1];
-
-    if (last && last.municipality === stop.municipality) {
-      last.stops.push(stop);
-    } else {
-      groups.push({ municipality: stop.municipality, stops: [stop] });
+  for (const route of routes) {
+    if (!groups.has(route.municipality)) {
+      groups.set(route.municipality, []);
+      order.push(route.municipality);
     }
+    groups.get(route.municipality)!.push(route);
   }
 
-  return groups;
+  return order.map((municipality) => ({
+    municipality,
+    stops: groups.get(municipality)!,
+  }));
 }
 
-export default function FareMatrixCalculator() {
+export default function FareCalculator() {
   const { settings, loading: settingsLoading } = useFareSettings();
 
   const groupedStops = useMemo(() => groupByMunicipality(TOWN_ROUTES), []);
@@ -80,12 +83,12 @@ export default function FareMatrixCalculator() {
     <div className="card" style={{ marginBottom: 20 }}>
       <div className="card-head">
         <div>
-          <div className="section-title">Fare Matrix Calculator</div>
+          <div className="section-title">Fare Matrix</div>
 
           <div className="section-sub">
             {settingsLoading
               ? "Loading fare settings…"
-              : `Base fare ₱${settings.baseFare.toFixed(2)} for the first ${
+              : `₱${settings.baseFare.toFixed(2)} first ${
                   settings.baseDistanceKm
                 } km · +₱${settings.perKmRate.toFixed(2)}/km after`}
           </div>
@@ -180,7 +183,7 @@ export default function FareMatrixCalculator() {
 
         {isSameTown ? (
           <div className="section-sub" style={{ marginBottom: 14 }}>
-            Select two different towns to calculate a fare.
+            Select two different stops to calculate a fare.
           </div>
         ) : (
           fromTown &&
