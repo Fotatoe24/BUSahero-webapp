@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import {
   IconSmartphone,
   IconClock,
@@ -7,10 +8,16 @@ import {
   IconRefresh,
 } from "@/components/Icons";
 
-// Shared source for the Terms & Conditions clauses, used by both the
-// full /terms page and the TermsGate modal shown on first launch, so
-// the wording only needs to be updated in one place.
-export const termsClauses = [
+export interface TermsClause {
+  icon: ComponentType<{ size?: number; className?: string }>;
+  title: string;
+  body: string;
+}
+
+// Shared by the full Terms & Conditions page (app/terms/page.tsx) and the
+// first-run consent modal (components/TermsGate.tsx) so the wording only
+// lives in one place.
+export const TERMS_CLAUSES: TermsClause[] = [
   {
     icon: IconSmartphone,
     title: "Use of the Application",
@@ -42,3 +49,5 @@ export const termsClauses = [
     body: "These Terms and Conditions may be updated as the application is improved. Continued use of BUSahero after updates indicates acceptance of the revised terms.",
   },
 ];
+
+export const TERMS_EFFECTIVE_DATE = "Effective Date: July 2026";

@@ -1544,6 +1544,7 @@ tbody tr:last-child td {
   height: 44px;
   border-radius: 50%;
   background: var(--blue-100);
+  color: var(--blue-600);
   font-size: 20px;
   margin-bottom: 10px;
 }

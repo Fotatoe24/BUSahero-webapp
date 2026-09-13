@@ -46,14 +46,20 @@ export default function TermsPage() {
             </div>
 
             <div className="info-grid">
-              {clauses.map((c, i) => (
-                <div className="info-tile" key={c.title}>
-                  <span className="info-tile-index">{i + 1}</span>
-                  <span className="icon-badge">{c.icon}</span>
-                  <div className="info-tile-title pr">{c.title}</div>
-                  <div className="info-tile-body">{c.body}</div>
-                </div>
-              ))}
+              {clauses.map((c, i) => {
+                const Icon = c.icon;
+
+                return (
+                  <div className="info-tile" key={c.title}>
+                    <span className="info-tile-index">{i + 1}</span>
+                    <span className="icon-badge">
+                      <Icon size={20} />
+                    </span>
+                    <div className="info-tile-title pr">{c.title}</div>
+                    <div className="info-tile-body">{c.body}</div>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="info-footnote">{TERMS_EFFECTIVE_DATE}</div>
