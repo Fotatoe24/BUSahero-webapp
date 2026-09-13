@@ -12,17 +12,9 @@ interface NavItem {
   label: string;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/fares", label: "Fares" },
-  { href: "/bus-info", label: "Bus Information" },
-];
+const NAV_ITEMS: NavItem[] = [{ href: "/dashboard", label: "Dashboard" }];
 
-const INFO_NAV_ITEMS: NavItem[] = [
-  { href: "/about", label: "About Us" },
-  { href: "/privacy-policy", label: "Privacy Policy" },
-  { href: "/terms", label: "Terms & Conditions" },
-];
+const INFO_NAV_ITEMS: NavItem[] = [{ href: "/about", label: "About Us" }];
 
 function DashboardIcon() {
   return (

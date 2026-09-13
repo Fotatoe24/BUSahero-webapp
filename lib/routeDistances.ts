@@ -176,12 +176,7 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     municipality: "San Narciso",
     legKm: 3.0,
   },
-  {
-    id: "san-narciso-libertad",
-    name: "Libertad",
-    municipality: "San Narciso",
-    legKm: 0.0,
-  },
+
   {
     id: "san-narciso-patrocinio-natividad",
     name: "Patrocinio/ natividad",
@@ -189,16 +184,23 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     legKm: 0.0,
   },
   {
+    id: "san-narciso-libertad",
+    name: "Libertad",
+    municipality: "San Narciso",
+    legKm: 0.0,
+  },
+  {
     id: "san-narciso-alusiis",
-    name: "Alusiss",
+    name: "Alusiis",
     municipality: "San Narciso",
     legKm: 1.0,
   },
+
   {
-    id: "san-felipe-rosete",
-    name: "Rosete",
+    id: "san-felipe-manglicmot",
+    name: "Manglicmot",
     municipality: "San Felipe",
-    legKm: 4.0,
+    legKm: 0.0,
   },
   {
     id: "san-felipe-apostol",
@@ -207,10 +209,10 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     legKm: 0.0,
   },
   {
-    id: "san-felipe-manglicmot",
-    name: "Manglicmot",
+    id: "san-felipe-rosete",
+    name: "Rosete",
     municipality: "San Felipe",
-    legKm: 0.0,
+    legKm: 4.0,
   },
   {
     id: "san-felipe-faranal",
@@ -231,17 +233,18 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     legKm: 4.0,
   },
   {
-    id: "cabangan-casabaan",
-    name: "Casabaan",
-    municipality: "Cabangan",
-    legKm: 2.0,
-  },
-  {
     id: "cabangan-anonang",
     name: "Anonang",
     municipality: "Cabangan",
     legKm: 0.0,
   },
+  {
+    id: "cabangan-casabaan",
+    name: "Casabaan",
+    municipality: "Cabangan",
+    legKm: 2.0,
+  },
+
   {
     id: "cabangan-longos",
     name: "Longos",
@@ -267,17 +270,18 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     legKm: 1.0,
   },
   {
-    id: "cabangan-apo-apo",
-    name: "Apo-apo",
-    municipality: "Cabangan",
-    legKm: 2.0,
-  },
-  {
     id: "cabangan-sta-rita",
     name: "Sta. Rita",
     municipality: "Cabangan",
     legKm: 0.0,
   },
+  {
+    id: "cabangan-apo-apo",
+    name: "Apo-apo",
+    municipality: "Cabangan",
+    legKm: 2.0,
+  },
+
   {
     id: "cabangan-san-rafael",
     name: "San Rafael",
@@ -299,13 +303,14 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
   },
   { id: "botolan-porac", name: "Porac", municipality: "Botolan", legKm: 2.0 },
   { id: "botolan-carael", name: "Carael", municipality: "Botolan", legKm: 4.0 },
-  { id: "botolan-agora", name: "Agora", municipality: "Botolan", legKm: 2.0 },
   {
     id: "botolan-baton-lapoc",
     name: "Batonlapoc",
     municipality: "Botolan",
     legKm: 0.0,
   },
+  { id: "botolan-agora", name: "Agora", municipality: "Botolan", legKm: 2.0 },
+
   { id: "botolan-tampo", name: "Tampo", municipality: "Botolan", legKm: 2.0 },
   {
     id: "botolan-santiago",
@@ -314,7 +319,7 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     legKm: 1.0,
   },
   { id: "botolan-bancal", name: "Bancal", municipality: "Botolan", legKm: 1.0 },
-  { id: "iba-palamginan", name: "Palamginan", municipality: "Iba", legKm: 1.0 },
+  { id: "iba-palanginan", name: "Palanginan", municipality: "Iba", legKm: 1.0 },
   {
     id: "iba-zone-1-libaba-itc",
     name: "Zone 1, Libaba/ ITC",
@@ -334,9 +339,9 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     legKm: 1.0,
   },
   {
-    id: "palauig-amungan",
+    id: "iba-amungan",
     name: "Amungan",
-    municipality: "Palauig",
+    municipality: "Iba",
     legKm: 2.0,
   },
   {
