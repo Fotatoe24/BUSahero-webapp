@@ -46,10 +46,6 @@ function getInitials(name: string): string {
 function TeamCard({ dev }: { dev: Developer }) {
   return (
     <div className="team-card">
-      <div className="team-photo-wrap no-photo" aria-hidden="true">
-        {getInitials(dev.name)}
-      </div>
-
       <div className="team-card-info">
         <div className="team-name">{dev.name}</div>
         <div className="team-role">{dev.role}</div>
@@ -76,10 +72,10 @@ export default function AboutPage() {
                 <div className="info-card-title">About the App</div>
                 <p className="info-card-body">
                   BUSahero is a web-based real-time bus tracking and arrival
-                  estimation application developed to help commuters monitor
-                  bus locations, estimate arrival times, check seat
-                  availability, and calculate fares for trips between
-                  Olongapo City and Zambales.
+                  estimation application developed to help commuters monitor bus
+                  locations, estimate arrival times, check seat availability,
+                  and calculate fares for trips between Olongapo City and
+                  Zambales.
                 </p>
               </div>
 
@@ -89,7 +85,7 @@ export default function AboutPage() {
                     160px-tall, rounded illustration slot as before, just an
                     image instead of an emoji. */}
                 <img
-                  src="/about-app.png"
+                  src="/bushero-illustration.png"
                   alt="BUSahero app preview"
                   className="info-hero-illustration-img"
                 />
@@ -113,17 +109,20 @@ export default function AboutPage() {
               <div>
                 <div className="info-card-title">Get in Touch</div>
                 <p className="info-card-body">
-                  For questions, feedback, or concerns about BUSahero, reach
-                  out to the development team.
+                  For questions, feedback, or concerns about BUSahero, reach out
+                  to the development team.
                 </p>
                 <p className="info-card-body" style={{ marginTop: 8 }}>
                   Email:{" "}
-                  <a href="mailto:BusaHero.inc@gmail.com" style={{ color: "var(--blue-600)", fontWeight: 600 }}>
+                  <a
+                    href="mailto:BusaHero.inc@gmail.com"
+                    style={{ color: "var(--blue-600)", fontWeight: 600 }}
+                  >
                     BusaHero.inc@gmail.com
                   </a>
                   <br />
-                  University: President Ramon Magsaysay State University,
-                  Iba, Zambales, Philippines
+                  University: President Ramon Magsaysay State University, Iba,
+                  Zambales, Philippines
                 </p>
               </div>
             </div>

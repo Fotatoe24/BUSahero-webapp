@@ -93,7 +93,7 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
   { id: "subic-aningway", name: "Aningway", municipality: "Subic", legKm: 2.0 },
   {
     id: "castillejos-panatawan",
-    name: "Panatawan",
+    name: "Pamatawan",
     municipality: "Castillejos",
     legKm: 1.0,
   },
