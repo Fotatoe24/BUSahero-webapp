@@ -3,7 +3,7 @@
 interface TopbarProps {
   title: string;
   subtitle: string;
-  source: "firebase" | "mock";
+  source?: "firebase" | "mock";
 }
 
 export default function Topbar({ title, subtitle, source }: TopbarProps) {
@@ -17,13 +17,15 @@ export default function Topbar({ title, subtitle, source }: TopbarProps) {
         <div className="topbar-sub">{subtitle}</div>
       </div>
 
-      <div className="topbar-right">
-        <span className={`live-pill ${isLive ? "" : "mock"}`}>
-          <span className="live-dot" />
+      {source && (
+        <div className="topbar-right">
+          <span className={`live-pill ${isLive ? "" : "mock"}`}>
+            <span className="live-dot" />
 
-          {isLive ? "LIVE · FIREBASE" : "DEMO DATA"}
-        </span>
-      </div>
+            {isLive ? "LIVE · FIREBASE" : "DEMO DATA"}
+          </span>
+        </div>
+      )}
     </header>
   );
 }

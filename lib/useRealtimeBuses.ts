@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ref, onValue, update } from "firebase/database";
 import { db, hasFirebaseConfig } from "./firebase";
+import { normalizeBusStatus } from "./busStatus";
 
 interface Bus {
   id: string;
@@ -76,7 +77,7 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
         longitude: data.longitude,
         satellites: data.satellites,
         speed: data.speed,
-        status: data.status,
+        status: normalizeBusStatus(data.status, data.speed),
         updatedAt: data.updatedAt,
         driverName: data.DriverName ?? "",
         conductorName: data.ConductorName ?? "",

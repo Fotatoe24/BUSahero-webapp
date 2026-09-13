@@ -12,7 +12,11 @@ interface NavItem {
   label: string;
 }
 
-const NAV_ITEMS: NavItem[] = [{ href: "/dashboard", label: "Dashboard" }];
+const NAV_ITEMS: NavItem[] = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/fares", label: "Fare Matrix" },
+  { href: "/bus-info", label: "Bus Information" },
+];
 
 const INFO_NAV_ITEMS: NavItem[] = [{ href: "/about", label: "About Us" }];
 
