@@ -85,7 +85,7 @@ export default function AboutPage() {
                     160px-tall, rounded illustration slot as before, just an
                     image instead of an emoji. */}
                 <img
-                  src="/bushero-illustration.png"
+                  src="/busahero-illustration.png"
                   alt="BUSahero app preview"
                   className="info-hero-illustration-img"
                 />

@@ -1,77 +1,125 @@
 "use client";
 
-import { useState } from "react";
-import { TERMS_CLAUSES } from "@/lib/termsContent";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { termsClauses } from "@/lib/termsContent";
 
-/**
- * Application-level entry point for Terms & Conditions consent.
- *
- * Mounted once in app/layout.tsx (above everything, including the login
- * screen) so it appears whenever BUSahero is opened, regardless of which
- * route is landed on. Acceptance is intentionally NOT persisted anywhere
- * (no localStorage/sessionStorage/cookie) — `accepted` is plain in-memory
- * React state, so it only lasts for the current app opening. A full page
- * reload re-runs this component from scratch and the modal appears again;
- * navigating between pages within the same opening does not remount this
- * component (it lives in the root layout), so it correctly stays accepted
- * during normal in-app navigation. `children` are not rendered at all
- * until acceptance is confirmed, so the app can't be used behind the modal
- * by accident.
- */
-export default function TermsGate({ children }: { children: React.ReactNode }) {
-  const [accepted, setAccepted] = useState(false);
+const STORAGE_KEY = "busahero_terms_accepted";
 
-  function handleAccept() {
-    setAccepted(true);
-  }
+// A hard gate shown on first launch, before the onboarding tour —
+// unlike OnboardingTour, this one can't be dismissed without agreeing.
+// It shares the same localStorage-on-mount pattern as OnboardingTour,
+// and since it renders with a higher z-index, it naturally sits in
+// front of the tour until it's closed, giving a "Terms first, then
+// walkthrough" first-launch sequence without any extra coordination
+// between the two components.
+export default function TermsGate() {
+  const [visible, setVisible] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [showNudge, setShowNudge] = useState(false);
 
-  if (!accepted) {
-    return (
-      <div className="modal-overlay">
-        <div className="modal terms-modal">
-          <div className="modal-head">
-            <div className="modal-title">Terms &amp; Conditions</div>
-          </div>
+  useEffect(() => {
+    try {
+      const accepted = window.localStorage.getItem(STORAGE_KEY);
+      if (!accepted) setVisible(true);
+    } catch {
+      // localStorage unavailable — skip the gate rather than block
+      // everyone from using the app.
+    }
+  }, []);
 
-          <div className="modal-body">
-            <p className="info-card-body" style={{ marginBottom: 14 }}>
-              Welcome to BUSahero. Before you continue, please review and
-              accept the following terms.
-            </p>
+  if (!visible) return null;
 
-            <div className="terms-modal-body">
-              {TERMS_CLAUSES.map((clause) => (
-                <div className="terms-clause-row" key={clause.title}>
-                  <span className="icon-badge" aria-hidden="true">
-                    {clause.icon}
-                  </span>
-                  <div>
-                    <div className="info-tile-title">{clause.title}</div>
-                    <div className="info-tile-body">{clause.body}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+  const agree = () => {
+    if (!checked) {
+      setShowNudge(true);
+      return;
+    }
+    setVisible(false);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, "1");
+    } catch {}
+  };
 
-          <div className="modal-foot">
-            <span className="section-sub">
-              You must accept to use BUSahero.
-            </span>
+  return (
+    <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-900/55 p-4">
+      <div className="flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-w-lg">
+        <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+          <h2 className="text-base font-bold text-slate-800">
+            Terms & Conditions
+          </h2>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Please review before using BUSahero.
+          </p>
+        </div>
 
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleAccept}
-              autoFocus
+        <div className="max-h-[55vh] overflow-y-auto px-5 py-4 sm:px-6">
+          <p className="mb-4 text-sm leading-relaxed text-slate-600">
+            By using the BUSahero application, you agree to comply with these
+            Terms and Conditions. If you do not agree with any part of these
+            terms, please discontinue use of the application.
+          </p>
+
+          <ol className="space-y-3">
+            {termsClauses.map((c, i) => (
+              <li key={c.title} className="text-sm">
+                <p className="font-semibold text-slate-800">
+                  {i + 1}. {c.title}
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                  {c.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+
+          <p className="mt-4 text-xs text-slate-400">
+            Read the full{" "}
+            <Link href="/terms" className="font-medium text-brand underline">
+              Terms & Conditions
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy-policy"
+              className="font-medium text-brand underline"
             >
-              I Accept
-            </button>
-          </div>
+              Privacy Policy
+            </Link>{" "}
+            anytime from the sidebar.
+          </p>
+        </div>
+
+        <div className="border-t border-slate-100 px-5 py-4 sm:px-6">
+          <label className="mb-3 flex cursor-pointer items-start gap-2.5 text-xs text-slate-700 sm:text-sm">
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => {
+                setChecked(e.target.checked);
+                if (e.target.checked) setShowNudge(false);
+              }}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+            />
+            I have read and agree to the Terms & Conditions and Privacy Policy.
+          </label>
+
+          {showNudge && (
+            <p className="mb-3 text-xs font-medium text-red-500">
+              Please check the box above to continue — agreeing to the Terms is
+              required to use BUSahero.
+            </p>
+          )}
+
+          <button
+            onClick={agree}
+            className={`w-full rounded-full py-2.5 text-sm font-semibold text-white shadow-lg transition-colors ${
+              checked ? "bg-brand hover:bg-brand-dark" : "bg-slate-300"
+            }`}
+          >
+            I Agree & Continue
+          </button>
         </div>
       </div>
-    );
-  }
-
-  return <>{children}</>;
+    </div>
+  );
 }
