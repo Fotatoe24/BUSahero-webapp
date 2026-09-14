@@ -33,6 +33,10 @@ function statusBadge(status: string) {
     return <span className="badge badge-red">Inactive</span>;
   }
 
+  if (status === "No Signal") {
+    return <span className="badge badge-amber">No Signal</span>;
+  }
+
   return <span className="badge badge-slate">{status}</span>;
 }
 

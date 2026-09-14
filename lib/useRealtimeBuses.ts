@@ -77,7 +77,7 @@ function flatten(busesByRegion: BusRegions | null | undefined): Bus[] {
         longitude: data.longitude,
         satellites: data.satellites,
         speed: data.speed,
-        status: normalizeBusStatus(data.status, data.speed),
+        status: normalizeBusStatus(data.status, data.speed, data.updatedAt),
         updatedAt: data.updatedAt,
         driverName: data.DriverName ?? "",
         conductorName: data.ConductorName ?? "",
