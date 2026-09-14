@@ -11,45 +11,41 @@ export function isBusActive(status: string | undefined | null): boolean {
   return (status ?? "").trim().toLowerCase() !== "inactive";
 }
 
-const KNOWN_STATUSES: Record<string, string> = {
-  "in transit": "In Transit",
-  "intransit": "In Transit",
-  "in-transit": "In Transit",
-  "in_transit": "In Transit",
-  "moving": "In Transit",
-  "stopped": "Stopped",
-  "stop": "Stopped",
-  "idle": "Stopped",
-  "delayed": "Delayed",
-  "delay": "Delayed",
-  "inactive": "Inactive",
-  "offline": "Inactive",
-};
-
 /**
- * Canonicalizes the raw `status` string coming from the GPS tracking
+ * Canonicalizes the raw `status`/`speed` coming from the GPS tracking
  * device before it reaches any UI (Dashboard, Bus Information, the map).
  *
  * The device writes directly to Firebase (see README's "Data model"
- * section) — this app doesn't control its exact casing/spacing. Comparing
- * with strict `=== "In Transit"` is fragile: any variant the hardware
- * sends ("in_transit", "IN TRANSIT", etc.) would silently fail to match
- * and the indicator would look broken/missing even though real data is
- * arriving. This normalizes known variants case-insensitively.
+ * section) — this app doesn't control its exact wording. An earlier
+ * version of this function tried to whitelist known spellings of
+ * "moving" ("in transit", "in_transit", "moving", ...) and only fell
+ * back to `speed` when `status` was completely empty. That's exactly
+ * backwards for a real device: if it sends *any* word this whitelist
+ * doesn't happen to include (e.g. "Running", "En Route", "Active"),
+ * the raw word would be passed through unrecognized and would never
+ * strictly equal "In Transit" downstream — so a genuinely moving bus
+ * would be counted as 0 "In transit" even with real data arriving.
  *
- * If `status` is absent entirely, falls back to the one realtime signal
- * that's always present in the schema — `speed` — rather than showing a
- * blank/broken indicator.
+ * `speed` is a plain number with no wording to guess, so it's the
+ * authoritative signal for the moving/stopped distinction. `status` is
+ * only consulted for the two states that can't be inferred from speed
+ * at all — Delayed and Inactive — using loose substring matching so it
+ * doesn't matter whether the device sends "Delayed", "delay", or
+ * "DELAYED — traffic".
  */
 export function normalizeBusStatus(
   status: string | undefined | null,
   speed: number | undefined | null
 ): string {
-  const raw = (status ?? "").trim();
+  const lower = String(status ?? "").trim().toLowerCase();
 
-  if (raw) {
-    return KNOWN_STATUSES[raw.toLowerCase()] ?? raw;
+  if (lower.includes("inactive") || lower.includes("offline")) {
+    return "Inactive";
   }
 
-  return (speed ?? 0) > 0 ? "In Transit" : "Stopped";
+  if (lower.includes("delay")) {
+    return "Delayed";
+  }
+
+  return (Number(speed) || 0) > 0 ? "In Transit" : "Stopped";
 }
