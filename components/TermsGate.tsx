@@ -36,19 +36,14 @@ export default function TermsGate({ children }: { children: React.ReactNode }) {
 
           <div className="modal-body">
             <p className="info-card-body" style={{ marginBottom: 14 }}>
-              Welcome to BUSahero. Before you continue, please review and
-              accept the following terms.
+              Welcome to BUSahero. Before you continue, please review and accept
+              the following terms.
             </p>
 
             <div className="terms-modal-body">
               {TERMS_CLAUSES.map((clause) => {
-                const Icon = clause.icon;
-
                 return (
                   <div className="terms-clause-row" key={clause.title}>
-                    <span className="icon-badge" aria-hidden="true">
-                      <Icon size={20} />
-                    </span>
                     <div>
                       <div className="info-tile-title">{clause.title}</div>
                       <div className="info-tile-body">{clause.body}</div>
@@ -60,7 +55,10 @@ export default function TermsGate({ children }: { children: React.ReactNode }) {
 
             <p className="section-sub" style={{ marginTop: 14 }}>
               Read the full{" "}
-              <Link href="/terms" style={{ color: "var(--blue-600)", fontWeight: 600 }}>
+              <Link
+                href="/terms"
+                style={{ color: "var(--blue-600)", fontWeight: 600 }}
+              >
                 Terms &amp; Conditions
               </Link>{" "}
               and{" "}
