@@ -38,6 +38,10 @@ function statusBadge(status: BusStatus) {
     return <span className="badge badge-amber">No Signal</span>;
   }
 
+  if (status === "Offline") {
+    return <span className="badge badge-red">Offline</span>;
+  }
+
   return <span className="badge badge-slate">{status}</span>;
 }
 

@@ -98,8 +98,15 @@ export function useRealtimeBuses() {
 
   const mockState = useRef<BusRegions>(structuredClone(MOCK_BUSES));
 
+  // Holds whatever the most recent raw snapshot was (mock or Firebase) so
+  // the connectivity-status recompute timer below can re-derive statuses
+  // from the current wall clock without needing a new write from the
+  // hardware — that's how "No Signal"/"Offline" advance on their own.
+  const latestRawRef = useRef<BusRegions | null>(null);
+
   useEffect(() => {
     if (!hasFirebaseConfig) {
+      latestRawRef.current = mockState.current;
       setBuses(flatten(mockState.current));
       setLoading(false);
 
@@ -134,6 +141,7 @@ export function useRealtimeBuses() {
     const unsubscribe = onValue(
       busesRef,
       (snapshot) => {
+        latestRawRef.current = snapshot.val();
         setBuses(flatten(snapshot.val()));
         setSource("firebase");
         setLoading(false);
@@ -144,6 +152,7 @@ export function useRealtimeBuses() {
           error
         );
 
+        latestRawRef.current = mockState.current;
         setSource("mock");
         setBuses(flatten(mockState.current));
         setLoading(false);
@@ -151,6 +160,22 @@ export function useRealtimeBuses() {
     );
 
     return () => unsubscribe();
+  }, []);
+
+  // Connectivity status (No Signal / Offline) depends on elapsed time,
+  // not just on new data arriving — Firebase's onValue only fires when
+  // the hardware actually writes something, so if it goes quiet, nothing
+  // would otherwise re-trigger a render and the UI would stay frozen on
+  // the last known status. This re-derives statuses from the same last
+  // known data on a timer so staleness is reflected automatically.
+  useEffect(() => {
+    const tick = setInterval(() => {
+      if (latestRawRef.current) {
+        setBuses(flatten(latestRawRef.current));
+      }
+    }, 5000);
+
+    return () => clearInterval(tick);
   }, []);
 
   const updateBusInfo = useCallback(

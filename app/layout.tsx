@@ -18,9 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <TermsGate>
-          <AuthProvider>{children}</AuthProvider>
-        </TermsGate>
+        <AuthProvider>
+          <TermsGate>{children}</TermsGate>
+        </AuthProvider>
       </body>
     </html>
   );

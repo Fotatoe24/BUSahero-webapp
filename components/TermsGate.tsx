@@ -2,31 +2,50 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/lib/useAuth";
 import { TERMS_CLAUSES } from "@/lib/termsContent";
 
 /**
- * Application-level entry point for Terms & Conditions consent.
+ * First-login Terms & Conditions gate.
  *
- * Mounted once in app/layout.tsx (above everything, including the login
- * screen) so it appears whenever BUSahero is opened, regardless of which
- * route is landed on. Acceptance is intentionally NOT persisted anywhere
- * (no localStorage/sessionStorage/cookie) — `accepted` is plain in-memory
- * React state, so it only lasts for the current app opening. A full page
- * reload re-runs this component from scratch and the modal appears again;
- * navigating between pages within the same opening does not remount this
- * component (it lives in the root layout), so it correctly stays accepted
- * during normal in-app navigation. `children` are not rendered at all
- * until acceptance is confirmed, so the app can't be used behind the modal
- * by accident.
+ * Mounted inside AuthProvider in app/layout.tsx so it has access to the
+ * signed-in operator's own account data. Acceptance is persisted on that
+ * account (operators.terms_accepted in Supabase, via /api/accept-terms —
+ * see lib/useAuth.tsx's acceptTerms()), not component state, so it
+ * survives logout/login and browser restarts.
+ *
+ * - Not signed in (or still checking the session): nothing to gate yet —
+ *   `children` render normally so the login/register pages work.
+ * - Signed in, terms_accepted is false: block `children` entirely behind
+ *   the modal, same as before — the app can't be used accidentally.
+ * - Signed in, terms_accepted is true: render `children` normally. Logs
+ *   out and back in still shows this correctly per-account, since
+ *   `operator` (and its terms_accepted) is re-fetched fresh on every
+ *   sign-in.
  */
 export default function TermsGate({ children }: { children: React.ReactNode }) {
-  const [accepted, setAccepted] = useState(false);
+  const { operator, loading, acceptTerms } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleAccept() {
-    setAccepted(true);
+  async function handleAccept() {
+    setSubmitting(true);
+    setError("");
+
+    const { error } = await acceptTerms();
+
+    setSubmitting(false);
+
+    if (error) {
+      setError(error);
+    }
   }
 
-  if (!accepted) {
+  if (loading || !operator) {
+    return <>{children}</>;
+  }
+
+  if (!operator.terms_accepted) {
     return (
       <div className="modal-overlay">
         <div className="modal terms-modal">
@@ -41,16 +60,14 @@ export default function TermsGate({ children }: { children: React.ReactNode }) {
             </p>
 
             <div className="terms-modal-body">
-              {TERMS_CLAUSES.map((clause) => {
-                return (
-                  <div className="terms-clause-row" key={clause.title}>
-                    <div>
-                      <div className="info-tile-title">{clause.title}</div>
-                      <div className="info-tile-body">{clause.body}</div>
-                    </div>
+              {TERMS_CLAUSES.map((clause) => (
+                <div className="terms-clause-row" key={clause.title}>
+                  <div>
+                    <div className="info-tile-title">{clause.title}</div>
+                    <div className="info-tile-body">{clause.body}</div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
 
             <p className="section-sub" style={{ marginTop: 14 }}>
@@ -70,6 +87,12 @@ export default function TermsGate({ children }: { children: React.ReactNode }) {
               </Link>{" "}
               anytime from the sidebar.
             </p>
+
+            {error && (
+              <div className="form-error show" style={{ marginTop: 10 }}>
+                {error}
+              </div>
+            )}
           </div>
 
           <div className="modal-foot">
@@ -81,9 +104,10 @@ export default function TermsGate({ children }: { children: React.ReactNode }) {
               type="button"
               className="btn btn-primary"
               onClick={handleAccept}
+              disabled={submitting}
               autoFocus
             >
-              I Accept
+              {submitting ? "Saving…" : "I Accept"}
             </button>
           </div>
         </div>

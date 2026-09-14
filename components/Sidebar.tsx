@@ -18,7 +18,11 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/bus-info", label: "Bus Information" },
 ];
 
-const INFO_NAV_ITEMS: NavItem[] = [{ href: "/about", label: "About Us" }];
+const INFO_NAV_ITEMS: NavItem[] = [
+  { href: "/about", label: "About Us" },
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms & Conditions" },
+];
 
 function DashboardIcon() {
   return (

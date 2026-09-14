@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import AuthGuard from "@/components/AuthGuard";
@@ -123,6 +124,21 @@ export default function AboutPage() {
                   <br />
                   University: President Ramon Magsaysay State University, Iba,
                   Zambales, Philippines
+                </p>
+                <p className="info-card-body" style={{ marginTop: 8 }}>
+                  <Link
+                    href="/terms"
+                    style={{ color: "var(--blue-600)", fontWeight: 600 }}
+                  >
+                    Terms &amp; Conditions
+                  </Link>
+                  {"  ·  "}
+                  <Link
+                    href="/privacy-policy"
+                    style={{ color: "var(--blue-600)", fontWeight: 600 }}
+                  >
+                    Privacy Policy
+                  </Link>
                 </p>
               </div>
             </div>

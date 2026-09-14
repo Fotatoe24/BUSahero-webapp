@@ -14,6 +14,7 @@ interface Operator {
   email: string;
   full_name: string;
   fleet_name: string;
+  terms_accepted: boolean;
 }
 
 interface AuthContextValue {
@@ -30,6 +31,7 @@ interface AuthContextValue {
     fleetName: string
   ) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  acceptTerms: () => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -106,8 +108,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setOperator(null);
   }
 
+  async function acceptTerms() {
+    const res = await fetch("/api/accept-terms", { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return { error: data.error || "Could not save your acceptance. Please try again." };
+    }
+
+    // Reflect the now-persisted acceptance immediately rather than waiting
+    // on a full refreshMe() round trip, so the gate closes right away.
+    setOperator((prev) => (prev ? { ...prev, terms_accepted: true } : prev));
+
+    return { error: null };
+  }
+
   return (
-    <AuthContext.Provider value={{ operator, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{ operator, loading, signIn, signUp, signOut, acceptTerms }}
+    >
       {children}
     </AuthContext.Provider>
   );
