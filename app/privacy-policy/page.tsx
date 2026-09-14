@@ -5,41 +5,41 @@ import Topbar from "@/components/Topbar";
 import AuthGuard from "@/components/AuthGuard";
 
 interface Practice {
-  icon: string;
   title: string;
   body: string;
 }
-
 const practices: Practice[] = [
   {
-    icon: "🗺️",
-    title: "Location Information",
-    body: "The application may access your device's location to display your current position on the map and provide navigation-related services. Your location is used only while the application is running.",
+    title: "Information We Collect",
+    body: "BUSahero may collect information necessary for system operations, such as operator account details, bus information, driver assignments, trip information, GPS location data, and system activity records.",
   },
   {
-    icon: "🚌",
-    title: "Real-Time Bus Tracking",
-    body: "BUSahero displays the real-time location of buses using GPS data transmitted by the bus tracking device. This information is intended solely to help commuters monitor bus movements.",
+    title: "How We Use Information",
+    body: "Collected information is used to support bus monitoring, real-time tracking, trip management, route monitoring, seat availability, reporting, and other authorized operational functions.",
   },
   {
-    icon: "🖥️",
-    title: "Data Collection",
-    body: "The application may store limited information such as user preferences, trip history, and system settings to improve the overall user experience.",
+    title: "GPS and Location Data",
+    body: "BUSahero may collect and process the real-time location of buses equipped with the tracking system. Location data is used to display bus positions and support arrival-time estimation and operational monitoring.",
   },
   {
-    icon: "🛡️",
-    title: "Data Protection",
-    body: "Reasonable security measures are implemented to protect stored information from unauthorized access, misuse, or disclosure.",
+    title: "Data Accuracy and Updates",
+    body: "Operators and management are responsible for ensuring that information they enter or update in BUSahero is accurate and current. Incorrect information may affect system results and operational monitoring.",
   },
   {
-    icon: "🔗",
-    title: "Information Sharing",
-    body: "BUSahero does not sell, rent, or intentionally share users' personal information with third parties unless required by law or with the user's consent.",
+    title: "Data Protection and Confidentiality",
+    body: "BUSahero information must be treated as confidential. Operators and management must not disclose, copy, distribute, or use operational information for purposes unrelated to authorized bus operations.",
   },
   {
-    icon: "🔄",
-    title: "Policy Updates",
-    body: "This Privacy Policy may be updated periodically to reflect improvements or changes in the application. Continued use of the application indicates acceptance of the updated policy.",
+    title: "Data Sharing and Disclosure",
+    body: "Information collected through BUSahero should only be accessed or shared with authorized personnel and parties with a legitimate operational purpose, subject to applicable policies and requirements.",
+  },
+  {
+    title: "Data Security and Account Protection",
+    body: "Reasonable security measures are used to protect system information and user accounts. Operators and management are responsible for protecting their login credentials and reporting suspected unauthorized access or security incidents.",
+  },
+  {
+    title: "Privacy Policy Updates",
+    body: "This Privacy Policy may be updated when BUSahero's features, data practices, or operational requirements change. Users are encouraged to review the latest version of the policy when updates are made.",
   },
 ];
 
@@ -86,7 +86,6 @@ export default function PrivacyPolicyPage() {
             <div className="info-grid">
               {practices.map((p) => (
                 <div className="info-tile" key={p.title}>
-                  <span className="icon-badge">{p.icon}</span>
                   <div className="info-tile-title">{p.title}</div>
                   <div className="info-tile-body">{p.body}</div>
                 </div>
